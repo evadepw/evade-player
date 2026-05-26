@@ -85,11 +85,29 @@ export const SUBTITLE_FONT_FAMILY_OPTIONS: SubtitleSettingOption[] = [
 ];
 
 export const SUBTITLE_POSITION_OPTIONS: SubtitleSettingOption[] = [
-    {value: 'low', label: 'Low', css: '1.5rem'},
-    {value: 'default', label: 'Default', css: '3rem'},
-    {value: 'high', label: 'High', css: '5rem'},
-    {value: 'very-high', label: 'Very high', css: '6.5rem'},
+    {value: 'low', label: 'Low', css: '0rem'},
+    {value: 'default', label: 'Default', css: '1.5rem'},
+    {value: 'high', label: 'High', css: '3rem'},
+    {value: 'very-high', label: 'Very high', css: '5rem'},
 ];
+
+export const VOLUME_BOOST_OPTIONS: SubtitleSettingOption[] = [
+    {value: '50', label: '50%', css: '0.5'},
+    {value: '100', label: '100%', css: '1'},
+    {value: '150', label: '150%', css: '1.5'},
+    {value: '200', label: '200%', css: '2'},
+    {value: '300', label: '300%', css: '3'},
+];
+
+export const NORMALIZATION_OPTIONS: SubtitleSettingOption[] = [
+    {value: 'off', label: 'Off', css: '0'},
+    {value: 'light', label: 'Light', css: '1'},
+    {value: 'medium', label: 'Medium', css: '2'},
+    {value: 'strong', label: 'Strong', css: '3'},
+];
+
+export const DEFAULT_VOLUME_BOOST = '100';
+export const DEFAULT_NORMALIZATION = 'off';
 
 export const DEFAULT_SUBTITLE_APPEARANCE: SubtitleAppearance = {
     fontSize: 'medium',

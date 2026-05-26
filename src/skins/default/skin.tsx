@@ -45,6 +45,7 @@ import {HlsVideo} from '@videojs/react/media/hls-video';
 import {Button} from './components/button';
 import {VolumePopover} from './components/volume-popover';
 import {SettingsMenu} from './components/settings-menu';
+import {VolumeProcessor} from './components/volume-processor';
 import type {QualityOption} from './types';
 import {isHlsSource, isRenderProp, isString} from './utils';
 import {Player} from './player';
@@ -207,6 +208,7 @@ export function VideoPlayer({
         <Player.Provider>
             <CaptionLineOffset/>
             <Container className={`media-default-skin media-default-skin--video ${className ?? ''}`} {...rest}>
+                <VolumeProcessor/>
                 {isHls ? (
                     <HlsVideo
                         src={src}

@@ -2,23 +2,28 @@ import type {ReactNode} from 'react';
 import {useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Menu, useMedia, usePlayer} from '@videojs/react';
-import {Captions, Check, ChevronLeft, Gauge, Palette, Settings, Timer} from 'lucide-react';
+import {Captions, Check, ChevronLeft, Gauge, Palette, Settings, Timer, Volume2} from 'lucide-react';
 import {Button} from './button';
 import {
     AUTO_QUALITY_VALUE,
     SUBTITLES_OFF_VALUE,
     DEFAULT_SUBTITLE_APPEARANCE,
+    DEFAULT_VOLUME_BOOST,
+    DEFAULT_NORMALIZATION,
+    NORMALIZATION_OPTIONS,
     SUBTITLE_BG_OPTIONS,
     SUBTITLE_COLOR_OPTIONS,
     SUBTITLE_EDGE_STYLE_OPTIONS,
     SUBTITLE_FONT_FAMILY_OPTIONS,
     SUBTITLE_FONT_SIZE_OPTIONS,
     SUBTITLE_POSITION_OPTIONS,
+    VOLUME_BOOST_OPTIONS,
     type QualityOption,
     type SettingsView,
     type SubtitleAppearance,
     type SubtitleSettingsView,
 } from '../types';
+import {applyVolumeBoost, applyNormalization} from './audio-chain';
 import {
     buildQualityMenuOptions,
     getActiveSubtitleValue,
@@ -128,6 +133,8 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     const [view, setView] = useState<SettingsView>('root');
     const [subSettingsView, setSubSettingsView] = useState<SubtitleSettingsView | null>(null);
     const [subtitleAppearance, setSubtitleAppearance] = useState<SubtitleAppearance>(DEFAULT_SUBTITLE_APPEARANCE);
+    const [volumeBoost, setVolumeBoost] = useState<string>(DEFAULT_VOLUME_BOOST);
+    const [normalization, setNormalization] = useState<string>(DEFAULT_NORMALIZATION);
 
     useEffect(() => {
         const container = document.querySelector('.media-default-skin') as HTMLElement | null;
@@ -232,7 +239,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                 <div className="media-menu__group" role="radiogroup" aria-label={SUBTITLE_SETTING_LABELS[setting]}>
                     {options.map((option) => (
                         <div key={option.value}
-                             className={`media-menu__item ${option.value === currentValue ? 'media-menu__item--selected' : ''}`}
+                             className="media-menu__item"
                              role="radio"
                              aria-checked={option.value === currentValue}
                              tabIndex={0}
@@ -310,6 +317,19 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                 <span>{speedValue}x</span>
                             </div>
                         )}
+                        <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('audio')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('audio');
+                             }}>
+                            <span className="media-settings__label">
+                                <Volume2 className="media-icon"/>
+                                <span>Audio</span>
+                            </span>
+                            <span>{volumeBoost}%</span>
+                        </div>
                     </div>
                 )}
                 {view === 'quality' && (
@@ -527,6 +547,77 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                             subtitleAppearance.position,
                             (value) => setSubtitleAppearance((prev) => ({...prev, position: value}))
                         )}
+                    </div>
+                )}
+                {view === 'audio' && (
+                    <div className="media-menu__submenu">
+                        <div className="media-menu__item media-menu__item--back" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('root')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('root');
+                             }}>
+                            <span className="media-settings__label">
+                                <ChevronLeft className="media-icon"/>
+                                <span>Audio</span>
+                            </span>
+                        </div>
+                        <div className="media-menu__group">
+                            <div className="media-menu__item media-menu__item--subheader" role="presentation">
+                                <span>Volume boost</span>
+                            </div>
+                            {VOLUME_BOOST_OPTIONS.map((option) => (
+                                <div key={option.value}
+                                     className="media-menu__item"
+                                     role="radio"
+                                     aria-checked={option.value === volumeBoost}
+                                     tabIndex={0}
+                                     onClick={() => {
+                                         setVolumeBoost(option.value);
+                                         applyVolumeBoost(parseFloat(option.css));
+                                     }}
+                                     onKeyDown={(event) => {
+                                         if (!isMenuActionKey(event.key)) return;
+                                         event.preventDefault();
+                                         setVolumeBoost(option.value);
+                                         applyVolumeBoost(parseFloat(option.css));
+                                     }}>
+                                    <span>{option.label}</span>
+                                    {option.value === volumeBoost && (
+                                        <Check className="media-icon media-menu__indicator"/>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="media-menu__separator"/>
+                        <div className="media-menu__group">
+                            <div className="media-menu__item media-menu__item--subheader" role="presentation">
+                                <span>Normalization</span>
+                            </div>
+                            {NORMALIZATION_OPTIONS.map((option) => (
+                                <div key={option.value}
+                                     className="media-menu__item"
+                                     role="radio"
+                                     aria-checked={option.value === normalization}
+                                     tabIndex={0}
+                                     onClick={() => {
+                                         setNormalization(option.value);
+                                         applyNormalization(option.value);
+                                     }}
+                                     onKeyDown={(event) => {
+                                         if (!isMenuActionKey(event.key)) return;
+                                         event.preventDefault();
+                                         setNormalization(option.value);
+                                         applyNormalization(option.value);
+                                     }}>
+                                    <span>{option.label}</span>
+                                    {option.value === normalization && (
+                                        <Check className="media-icon media-menu__indicator"/>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
                 {view === 'speed' && (
