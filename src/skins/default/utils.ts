@@ -179,34 +179,3 @@ export function getSubtitleTrackValue(_track: TextTrack, index: number): string 
     // TextTrack ids/labels/languages can repeat; index keeps values unique per media element.
     return `track:${index}`;
 }
-
-export function getAudioOptions(media: HTMLMediaElement | null): AudioOption[] {
-    const options: AudioOption[] = [];
-    if (!media?.audioTracks) return options;
-
-    Array.from(media.audioTracks).forEach((track, index) => {
-        options.push({
-            value: getAudioTrackValue(track, index),
-            label: track.label || track.language || `Track ${index + 1}`
-        });
-    });
-
-    return options;
-}
-
-export function getActiveAudioValue(media: HTMLMediaElement | null): string {
-    if (!media?.audioTracks) return '';
-
-    const track = Array.from(media.audioTracks).find(
-        (current) => current.mode === 'showing'
-    );
-
-    if (!track) return '';
-
-    const trackIndex = Array.from(media.audioTracks).findIndex((current) => current === track);
-    return getAudioTrackValue(track, trackIndex >= 0 ? trackIndex : 0);
-}
-
-export function getAudioTrackValue(_track: AudioTrack, index: number): string {
-    return `audio:${index}`;
-}

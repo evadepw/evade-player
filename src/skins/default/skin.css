@@ -984,6 +984,21 @@
     transition-delay: var(--media-caption-track-delay);
 }
 
+.media-default-skin video::cue {
+    color: var(--vjs-subtitle-color, #FFF);
+    background: var(--vjs-subtitle-bg, rgba(0, 0, 0, 0.8));
+    font-size: var(--vjs-subtitle-font-size, 1.1rem);
+    font-family: var(--vjs-subtitle-font-family, sans-serif);
+    text-shadow: var(--vjs-subtitle-edge-style, none);
+}
+
+.media-default-skin video::-webkit-media-text-track-display {
+    font-size: var(--vjs-subtitle-font-size, 1.1rem);
+    color: var(--vjs-subtitle-color, #FFF);
+    font-family: var(--vjs-subtitle-font-family, sans-serif);
+    text-shadow: var(--vjs-subtitle-edge-style, none);
+}
+
 /* ==========================================================================
    Input Feedback
    ========================================================================== */

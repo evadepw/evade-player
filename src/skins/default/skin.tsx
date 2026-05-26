@@ -20,7 +20,6 @@ import {
     VolumeOffIcon
 } from '@videojs/react/icons';
 import {
-    createPlayer,
     Poster,
     Container,
     BufferingIndicator,
@@ -41,14 +40,14 @@ import {
     VolumeIndicator,
     type RenderProp
 } from '@videojs/react';
-import {Video, videoFeatures} from '@videojs/react/video';
+import {Video} from '@videojs/react/video';
 import {HlsVideo} from '@videojs/react/media/hls-video';
-import {bufferFeature, sourceFeature, textTrackFeature} from '@videojs/react'
 import {Button} from './components/button';
 import {VolumePopover} from './components/volume-popover';
 import {SettingsMenu} from './components/settings-menu';
 import type {QualityOption} from './types';
 import {isHlsSource, isRenderProp, isString} from './utils';
+import {Player} from './player';
 
 import './skin.css';
 
@@ -56,14 +55,8 @@ const TOP_STATUS_ACTIONS = ['toggleSubtitles', 'toggleFullscreen', 'togglePictur
 
 const CENTER_STATUS_ACTIONS = ['togglePaused'] as const;
 
-// ================================================================
-// Player
-// ================================================================
-
 const SEEK_TIME = 10;
 const CAPTION_LINE_OFFSET = -3;
-
-export const Player = createPlayer({features: [...videoFeatures, bufferFeature, sourceFeature, textTrackFeature]});
 
 function CaptionLineOffset(): null {
     const media = Player.useMedia();
@@ -164,7 +157,6 @@ export function VideoPlayer({
 
     useEffect(() => {
         if (!thumbnailStoryboardSrc) {
-            setStoryboardItems(null);
             return;
         }
 
