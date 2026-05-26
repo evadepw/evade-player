@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react';
 import {useEffect, useMemo, useState} from 'react';
+import {createPortal} from 'react-dom';
 import {Menu, useMedia, usePlayer} from '@videojs/react';
 import {Captions, Check, ChevronLeft, Gauge, Palette, Settings, Timer} from 'lucide-react';
 import {Button} from './button';
@@ -12,6 +13,7 @@ import {
     SUBTITLE_EDGE_STYLE_OPTIONS,
     SUBTITLE_FONT_FAMILY_OPTIONS,
     SUBTITLE_FONT_SIZE_OPTIONS,
+    SUBTITLE_POSITION_OPTIONS,
     type QualityOption,
     type SettingsView,
     type SubtitleAppearance,
@@ -34,6 +36,7 @@ const SUBTITLE_SETTING_LABELS: Record<SubtitleSettingsView, string> = {
     'text-bg': 'Text background',
     'edge-style': 'Edge style',
     'font-family': 'Font family',
+    'position': 'Position',
 };
 
 function isMenuActionKey(key: string): boolean {
@@ -135,12 +138,14 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
         const textBgCss = SUBTITLE_BG_OPTIONS.find((o) => o.value === subtitleAppearance.textBg)?.css ?? 'rgba(0,0,0,0.8)';
         const edgeStyleCss = SUBTITLE_EDGE_STYLE_OPTIONS.find((o) => o.value === subtitleAppearance.edgeStyle)?.css ?? 'none';
         const fontFamilyCss = SUBTITLE_FONT_FAMILY_OPTIONS.find((o) => o.value === subtitleAppearance.fontFamily)?.css ?? 'sans-serif';
+        const positionCss = SUBTITLE_POSITION_OPTIONS.find((o) => o.value === subtitleAppearance.position)?.css ?? '1.5rem';
 
         container.style.setProperty('--vjs-subtitle-font-size', fontSizeCss);
         container.style.setProperty('--vjs-subtitle-color', textColorCss);
         container.style.setProperty('--vjs-subtitle-bg', textBgCss);
         container.style.setProperty('--vjs-subtitle-edge-style', edgeStyleCss);
         container.style.setProperty('--vjs-subtitle-font-family', fontFamilyCss);
+        container.style.setProperty('--vjs-subtitle-offset', positionCss);
     }, [subtitleAppearance]);
 
     if (qualityOptions.length < 2 && speedOptions.length < 2 && subtitleOptions.length < 2) return null;
@@ -440,6 +445,18 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                 </span>
                                 <span>{SUBTITLE_FONT_FAMILY_OPTIONS.find((o) => o.value === subtitleAppearance.fontFamily)?.label ?? 'Proportional'}</span>
                             </div>
+                            <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
+                                 onClick={() => setSubSettingsView('position')}
+                                 onKeyDown={(event) => {
+                                     if (!isMenuActionKey(event.key)) return;
+                                     event.preventDefault();
+                                     setSubSettingsView('position');
+                                 }}>
+                                <span className="media-settings__label">
+                                    <span>Position</span>
+                                </span>
+                                <span>{SUBTITLE_POSITION_OPTIONS.find((o) => o.value === subtitleAppearance.position)?.label ?? 'Default'}</span>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -493,6 +510,16 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                         )}
                     </div>
                 )}
+                {view === 'subtitles-settings' && subSettingsView === 'position' && (
+                    <div className="media-menu__submenu">
+                        {renderSubSettingOptions(
+                            'position',
+                            SUBTITLE_POSITION_OPTIONS,
+                            subtitleAppearance.position,
+                            (value) => setSubtitleAppearance((prev) => ({...prev, position: value}))
+                        )}
+                    </div>
+                )}
                 {view === 'speed' && (
                     <div className="media-menu__submenu">
                         <div className="media-menu__item media-menu__item--back" role="menuitem" tabIndex={0}
@@ -522,6 +549,10 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                     </div>
                 )}
             </Menu.Content>
+            {view === 'subtitles-settings' && typeof document !== 'undefined' && createPortal(
+                <div className="media-subtitle-preview">Sample subtitle text</div>,
+                document.querySelector('.media-default-skin') ?? document.body
+            )}
         </Menu.Root>
     );
 }

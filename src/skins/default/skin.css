@@ -978,7 +978,7 @@
     font-family: inherit;
     scale: 0.98;
     bottom: var(--media-caption-track-bottom-offset) !important;
-    transform: translateY(var(--media-caption-track-y)) !important;
+    transform: translateY(calc(var(--media-caption-track-y) - var(--vjs-subtitle-offset, 0rem))) !important;
     translate: 0 var(--media-caption-track-y);
     transition: translate var(--media-caption-track-duration) ease-out;
     transition-delay: var(--media-caption-track-delay);
@@ -995,6 +995,24 @@
 .media-default-skin video::-webkit-media-text-track-display {
     font-size: var(--vjs-subtitle-font-size, 1.1rem);
     color: var(--vjs-subtitle-color, #FFF);
+    font-family: var(--vjs-subtitle-font-family, sans-serif);
+    text-shadow: var(--vjs-subtitle-edge-style, none);
+}
+
+.media-subtitle-preview {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: var(--vjs-subtitle-offset, 1.5rem);
+    z-index: 100;
+    padding: 0.15em 0.4em;
+    border-radius: 2px;
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1.4;
+    color: var(--vjs-subtitle-color, #FFF);
+    background: var(--vjs-subtitle-bg, rgba(0, 0, 0, 0.8));
+    font-size: var(--vjs-subtitle-font-size, 1.1rem);
     font-family: var(--vjs-subtitle-font-family, sans-serif);
     text-shadow: var(--vjs-subtitle-edge-style, none);
 }

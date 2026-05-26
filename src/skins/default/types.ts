@@ -27,6 +27,7 @@ export interface SubtitleAppearance {
     textBg: string;
     edgeStyle: string;
     fontFamily: string;
+    position: string;
 }
 
 export interface SubtitleSettingOption {
@@ -35,7 +36,7 @@ export interface SubtitleSettingOption {
     css: string;
 }
 
-export type SubtitleSettingsView = 'font-size' | 'text-color' | 'text-bg' | 'edge-style' | 'font-family';
+export type SubtitleSettingsView = 'font-size' | 'text-color' | 'text-bg' | 'edge-style' | 'font-family' | 'position';
 
 export const SUBTITLE_FONT_SIZE_OPTIONS: SubtitleSettingOption[] = [
     {value: 'small', label: 'Small', css: '0.8rem'},
@@ -83,12 +84,20 @@ export const SUBTITLE_FONT_FAMILY_OPTIONS: SubtitleSettingOption[] = [
     {value: 'small-caps', label: 'Small caps', css: 'small-caps'},
 ];
 
+export const SUBTITLE_POSITION_OPTIONS: SubtitleSettingOption[] = [
+    {value: 'low', label: 'Low', css: '1.5rem'},
+    {value: 'default', label: 'Default', css: '3rem'},
+    {value: 'high', label: 'High', css: '5rem'},
+    {value: 'very-high', label: 'Very high', css: '6.5rem'},
+];
+
 export const DEFAULT_SUBTITLE_APPEARANCE: SubtitleAppearance = {
     fontSize: 'medium',
     textColor: 'white',
     textBg: 'black',
     edgeStyle: 'none',
     fontFamily: 'proportional',
+    position: 'default',
 };
 
 export type SettingsView = 'root' | 'quality' | 'subtitles' | 'subtitles-settings' | 'audio' | 'season' | 'episode' | 'speed';
