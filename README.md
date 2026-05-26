@@ -1,4 +1,4 @@
-# Player Platform
+# Evade player
 
 React/Vite player for HLS playback through a provider with token-based access parameters.
 
@@ -18,8 +18,11 @@ VITE_VIDEO_PROVIDER_HOST=http://10.88.88.2
 VITE_VIDEO_PROVIDER_PROXY_PATH=/hls-proxy
 VITE_VIDEO_POSTER_PATH=/thumbnails
 VITE_DEFAULT_VIDEO_ID=3fb87d2e-b294-4c4e-a937-9be65496e1f7
-VITE_DEFAULT_TOKEN=change_me_service_key_32_chars_min
+VITE_HARDCODED_STREAM_URL=
 ```
+
+`VITE_HARDCODED_STREAM_URL` is an optional quick override.  
+If it is set, player uses this URL as-is and ignores `id/token/expires/codec`.
 
 ## Local Run (without Docker)
 

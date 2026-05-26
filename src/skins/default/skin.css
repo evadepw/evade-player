@@ -964,16 +964,12 @@
 .media-default-skin {
     --media-caption-track-duration: var(--media-controls-transition-duration);
     --media-caption-track-delay: 25ms;
-    --media-caption-track-y: -1rem;
-
-    &:has(.media-controls[data-visible]) {
-        --media-caption-track-y: -6.5rem;
-    }
+    --media-caption-track-y: -6.5rem;
+    --media-caption-track-bottom-offset: 6.5rem;
 
     @container media-root (width > 42rem) {
-        &:has(.media-controls[data-visible]) > * {
-            --media-caption-track-y: -4.5rem;
-        }
+        --media-caption-track-y: -4.5rem;
+        --media-caption-track-bottom-offset: 7.5rem;
     }
 }
 
@@ -981,6 +977,8 @@
     z-index: 1;
     font-family: inherit;
     scale: 0.98;
+    bottom: var(--media-caption-track-bottom-offset) !important;
+    transform: translateY(var(--media-caption-track-y)) !important;
     translate: 0 var(--media-caption-track-y);
     transition: translate var(--media-caption-track-duration) ease-out;
     transition-delay: var(--media-caption-track-delay);
