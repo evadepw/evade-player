@@ -229,17 +229,26 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                         <span>{SUBTITLE_SETTING_LABELS[setting]}</span>
                     </span>
                 </div>
-                <Menu.RadioGroup className="media-menu__group" value={currentValue}
-                                 onValueChange={onChange} label={SUBTITLE_SETTING_LABELS[setting]}>
+                <div className="media-menu__group" role="radiogroup" aria-label={SUBTITLE_SETTING_LABELS[setting]}>
                     {options.map((option) => (
-                        <Menu.RadioItem key={option.value} className="media-menu__item" value={option.value}>
+                        <div key={option.value}
+                             className={`media-menu__item ${option.value === currentValue ? 'media-menu__item--selected' : ''}`}
+                             role="radio"
+                             aria-checked={option.value === currentValue}
+                             tabIndex={0}
+                             onClick={() => onChange(option.value)}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 onChange(option.value);
+                             }}>
                             <span>{option.label}</span>
-                            <Menu.ItemIndicator checked={option.value === currentValue} forceMount className="media-menu__indicator">
-                                <Check className="media-icon"/>
-                            </Menu.ItemIndicator>
-                        </Menu.RadioItem>
+                            {option.value === currentValue && (
+                                <Check className="media-icon media-menu__indicator"/>
+                            )}
+                        </div>
                     ))}
-                </Menu.RadioGroup>
+                </div>
             </>
         );
     }

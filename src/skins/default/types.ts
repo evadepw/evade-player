@@ -39,9 +39,9 @@ export interface SubtitleSettingOption {
 export type SubtitleSettingsView = 'font-size' | 'text-color' | 'text-bg' | 'edge-style' | 'font-family' | 'position';
 
 export const SUBTITLE_FONT_SIZE_OPTIONS: SubtitleSettingOption[] = [
-    {value: 'small', label: 'Small', css: '0.8rem'},
-    {value: 'medium', label: 'Medium', css: '1.1rem'},
-    {value: 'large', label: 'Large', css: '1.5rem'},
+    {value: 'small', label: 'Small', css: '1.1rem'},
+    {value: 'medium', label: 'Medium', css: '1.5rem'},
+    {value: 'large', label: 'Large', css: '2rem'},
 ];
 
 export const SUBTITLE_COLOR_OPTIONS: SubtitleSettingOption[] = [
