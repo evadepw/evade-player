@@ -80,40 +80,18 @@ function extractRealMediaElement(candidate: unknown): HTMLMediaElement | null {
         return candidate;
     }
 
-    const obj = candidate as Record<string, unknown>;
-
-    if (typeof obj === 'object') {
+    if (typeof candidate === 'object') {
+        const obj = candidate as Record<string, unknown>;
         log('extractRealMediaElement: keys:', Object.keys(obj));
 
-        if (obj['current'] !== undefined) {
-            log('extractRealMediaElement: has .current property:', obj['current']);
-            if (obj['current'] instanceof HTMLMediaElement) {
-                log('extractRealMediaElement: .current is HTMLMediaElement!');
-                return obj['current'];
-            }
-        }
-
-        if (obj['element'] !== undefined) {
-            log('extractRealMediaElement: has .element property:', obj['element']);
-            if (obj['element'] instanceof HTMLMediaElement) {
-                log('extractRealMediaElement: .element is HTMLMediaElement!');
-                return obj['element'];
-            }
-        }
-
-        if (obj['nativeElement'] !== undefined) {
-            log('extractRealMediaElement: has .nativeElement property:', obj['nativeElement']);
-            if (obj['nativeElement'] instanceof HTMLMediaElement) {
-                log('extractRealMediaElement: .nativeElement is HTMLMediaElement!');
-                return obj['nativeElement'];
-            }
-        }
-
-        if (obj['media'] !== undefined) {
-            log('extractRealMediaElement: has .media property:', obj['media']);
-            if (obj['media'] instanceof HTMLMediaElement) {
-                log('extractRealMediaElement: .media is HTMLMediaElement!');
-                return obj['media'];
+        const mediaKeys = ['current', 'element', 'nativeElement', 'media'] as const;
+        for (const key of mediaKeys) {
+            if (obj[key] !== undefined) {
+                log(`extractRealMediaElement: has .${key} property:`, obj[key]);
+                if (obj[key] instanceof HTMLMediaElement) {
+                    log(`extractRealMediaElement: .${key} is HTMLMediaElement!`);
+                    return obj[key];
+                }
             }
         }
 
@@ -121,21 +99,14 @@ function extractRealMediaElement(candidate: unknown): HTMLMediaElement | null {
             log('extractRealMediaElement: has tagName:', obj['tagName']);
             if (obj instanceof Node && 'tagName' in obj) {
                 log('extractRealMediaElement: is Node with tagName but instanceof check failed - probably Proxy');
-                const maybeEl = candidate as HTMLElement;
+                const maybeEl = candidate as HTMLMediaElement;
                 if (typeof maybeEl.addEventListener === 'function' &&
                     typeof maybeEl.play === 'function' &&
                     typeof maybeEl.pause === 'function') {
                     log('extractRealMediaElement: has play/pause methods - trying to use directly anyway');
-                    return maybeEl as unknown as HTMLMediaElement;
+                    return maybeEl;
                 }
             }
-        }
-
-        try {
-            const unwrapped = structuredClone ? null : null;
-            log('extractRealMediaElement: structuredClone not usable for DOM elements');
-        } catch {
-            // ignore
         }
     }
 
