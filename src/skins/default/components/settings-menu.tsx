@@ -124,7 +124,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
         [qualities, manifestQualities, source]
     );
     const qualityOptions = useMemo(() => buildQualityMenuOptions(baseOptions, masterSource), [baseOptions, masterSource]);
-    const subtitleOptions = useMemo(() => getSubtitleOptions(media), [media, tracksVersion]);
+    const subtitleOptions = useMemo(() => getSubtitleOptions(media), [media, tracksVersion]); // eslint-disable-line react-hooks/exhaustive-deps
     const speedOptions = useMemo(
         () => playbackRates.map((rate) => ({value: String(rate), label: `${rate}x`, disabled: false})),
         [playbackRates]

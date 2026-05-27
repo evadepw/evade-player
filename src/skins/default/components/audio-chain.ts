@@ -1,264 +1,14 @@
-const DEBUG = true;
+type NormalizationLevel = 'off' | 'light' | 'medium' | 'strong';
 
-function log(...args: unknown[]): void {
-    if (DEBUG) {
-        console.log('[AudioChain]', ...args);
-    }
+interface NormalizationPreset {
+    threshold: number;
+    ratio: number;
+    knee: number;
+    attack: number;
+    release: number;
 }
 
-let ctx: AudioContext | null = null;
-let source: MediaElementAudioSourceNode | null = null;
-let gainNode: GainNode | null = null;
-let compressorNode: DynamicsCompressorNode | null = null;
-let mediaElement: HTMLMediaElement | null = null;
-
-let pendingVolumeFactor = 1;
-let pendingNormalizationLevel = 'off';
-let isInitialized = false;
-
-const normalizationPresets: Record<string, { threshold: number; ratio: number; knee: number; attack: number; release: number }> = {
-    off: { threshold: 0, ratio: 1, knee: 30, attack: 0.003, release: 0.25 },
-    light: { threshold: -24, ratio: 2, knee: 30, attack: 0.003, release: 0.25 },
-    medium: { threshold: -30, ratio: 4, knee: 20, attack: 0.003, release: 0.15 },
-    strong: { threshold: -36, ratio: 8, knee: 10, attack: 0.003, release: 0.1 }
-};
-
-function applyPendingSettings(): void {
-    if (!gainNode || !compressorNode) {
-        log('applyPendingSettings: nodes not ready yet');
-        return;
-    }
-
-    log('applyPendingSettings: volume=', pendingVolumeFactor, 'normalization=', pendingNormalizationLevel);
-
-    gainNode.gain.value = Math.max(0, pendingVolumeFactor);
-
-    const preset = normalizationPresets[pendingNormalizationLevel] || normalizationPresets.off;
-    compressorNode.threshold.value = preset.threshold;
-    compressorNode.ratio.value = preset.ratio;
-    compressorNode.knee.value = preset.knee;
-    compressorNode.attack.value = preset.attack;
-    compressorNode.release.value = preset.release;
-}
-
-async function ensureAudioContextRunning(): Promise<boolean> {
-    if (!ctx) {
-        log('ensureAudioContextRunning: no context yet');
-        return false;
-    }
-
-    log('ensureAudioContextRunning: context.state =', ctx.state);
-
-    if (ctx.state === 'suspended') {
-        try {
-            log('ensureAudioContextRunning: attempting to resume...');
-            await ctx.resume();
-            log('ensureAudioContextRunning: resumed successfully, state =', ctx.state);
-        } catch (e) {
-            log('ensureAudioContextRunning: resume failed -', e);
-            return false;
-        }
-    }
-
-    return ctx.state === 'running';
-}
-
-function extractRealMediaElement(candidate: unknown): HTMLMediaElement | null {
-    log('extractRealMediaElement: trying to extract from:', candidate);
-    log('  typeof:', typeof candidate);
-    log('  instanceof HTMLMediaElement:', candidate instanceof HTMLMediaElement);
-    log('  instanceof HTMLElement:', candidate instanceof HTMLElement);
-    log('  instanceof Object:', candidate instanceof Object);
-
-    if (candidate === null || candidate === undefined) {
-        log('extractRealMediaElement: is null/undefined');
-        return null;
-    }
-
-    if (candidate instanceof HTMLMediaElement) {
-        log('extractRealMediaElement: is direct HTMLMediaElement, tagName:', candidate.tagName);
-        return candidate;
-    }
-
-    if (typeof candidate === 'object') {
-        const obj = candidate as Record<string, unknown>;
-        log('extractRealMediaElement: keys:', Object.keys(obj));
-
-        const mediaKeys = ['current', 'element', 'nativeElement', 'media'] as const;
-        for (const key of mediaKeys) {
-            if (obj[key] !== undefined) {
-                log(`extractRealMediaElement: has .${key} property:`, obj[key]);
-                if (obj[key] instanceof HTMLMediaElement) {
-                    log(`extractRealMediaElement: .${key} is HTMLMediaElement!`);
-                    return obj[key];
-                }
-            }
-        }
-
-        if (typeof obj['tagName'] === 'string') {
-            log('extractRealMediaElement: has tagName:', obj['tagName']);
-            if (obj instanceof Node && 'tagName' in obj) {
-                log('extractRealMediaElement: is Node with tagName but instanceof check failed - probably Proxy');
-                const maybeEl = candidate as HTMLMediaElement;
-                if (typeof maybeEl.addEventListener === 'function' &&
-                    typeof maybeEl.play === 'function' &&
-                    typeof maybeEl.pause === 'function') {
-                    log('extractRealMediaElement: has play/pause methods - trying to use directly anyway');
-                    return maybeEl;
-                }
-            }
-        }
-    }
-
-    log('extractRealMediaElement: FAILED to extract HTMLMediaElement');
-    return null;
-}
-
-function ensureAudioChain(): boolean {
-    log('ensureAudioChain called, isInitialized=', isInitialized, 'hasMedia=', !!mediaElement);
-
-    if (isInitialized) {
-        log('ensureAudioChain: already initialized');
-        void ensureAudioContextRunning();
-        return true;
-    }
-
-    if (!mediaElement) {
-        log('ensureAudioChain: no mediaElement set, call setMediaElement() first');
-        return false;
-    }
-
-    log('ensureAudioChain: using mediaElement:', mediaElement.tagName, mediaElement);
-
-    try {
-        log('ensureAudioChain: creating new AudioContext...');
-        ctx = new AudioContext();
-        log('ensureAudioChain: created AudioContext, state =', ctx.state);
-
-        log('ensureAudioChain: creating MediaElementSourceNode...');
-        try {
-            source = ctx.createMediaElementSource(mediaElement);
-            log('ensureAudioChain: MediaElementSourceNode created successfully');
-        } catch (e) {
-            log('ensureAudioChain: FAILED createMediaElementSource -', e);
-            log('ensureAudioChain: mediaElement constructor.name:', mediaElement.constructor?.name);
-            log('ensureAudioChain: mediaElement.prototype chain:', Object.getPrototypeOf(mediaElement));
-            throw e;
-        }
-
-        log('ensureAudioChain: creating DynamicsCompressorNode...');
-        compressorNode = ctx.createDynamicsCompressor();
-
-        log('ensureAudioChain: creating GainNode...');
-        gainNode = ctx.createGain();
-
-        source.connect(compressorNode);
-        compressorNode.connect(gainNode);
-        gainNode.connect(ctx.destination);
-
-        log('ensureAudioChain: audio graph connected: source -> compressor -> gain -> destination');
-
-        isInitialized = true;
-
-        applyPendingSettings();
-
-        void ensureAudioContextRunning();
-
-        return true;
-    } catch (e) {
-        log('ensureAudioChain: TOP LEVEL ERROR -', e);
-        if (ctx) {
-            try { ctx.close(); } catch { /* ignore */ }
-        }
-        ctx = null;
-        source = null;
-        gainNode = null;
-        compressorNode = null;
-        return false;
-    }
-}
-
-export function applyVolumeBoost(factor: number): void {
-    log('applyVolumeBoost called with factor =', factor);
-
-    pendingVolumeFactor = factor;
-
-    if (!gainNode) {
-        log('applyVolumeBoost: gainNode not ready, initializing chain...');
-        const ok = ensureAudioChain();
-        if (!ok) {
-            log('applyVolumeBoost: ensureAudioChain failed, setting is stored as pending');
-        }
-        return;
-    }
-
-    gainNode.gain.value = Math.max(0, factor);
-    log('applyVolumeBoost: gain set to', gainNode.gain.value);
-
-    void ensureAudioContextRunning();
-}
-
-export function applyNormalization(level: string): void {
-    log('applyNormalization called with level =', level);
-
-    pendingNormalizationLevel = level;
-
-    if (!compressorNode) {
-        log('applyNormalization: compressorNode not ready, initializing chain...');
-        const ok = ensureAudioChain();
-        if (!ok) {
-            log('applyNormalization: ensureAudioChain failed, setting is stored as pending');
-        }
-        return;
-    }
-
-    const preset = normalizationPresets[level] || normalizationPresets.off;
-
-    compressorNode.threshold.value = preset.threshold;
-    compressorNode.ratio.value = preset.ratio;
-    compressorNode.knee.value = preset.knee;
-    compressorNode.attack.value = preset.attack;
-    compressorNode.release.value = preset.release;
-
-    log('applyNormalization: compressor set - threshold:', preset.threshold, 'ratio:', preset.ratio, 'knee:', preset.knee);
-
-    void ensureAudioContextRunning();
-}
-
-export function resumeOnUserInteraction(): void {
-    log('resumeOnUserInteraction called');
-    if (ensureAudioChain()) {
-        void ensureAudioContextRunning();
-    }
-}
-
-export function setMediaElement(element: unknown): void {
-    log('setMediaElement called with:', element);
-
-    const realElement = extractRealMediaElement(element);
-
-    if (realElement) {
-        log('setMediaElement: successfully extracted real HTMLMediaElement!');
-
-        if (mediaElement && mediaElement !== realElement) {
-            log('setMediaElement: different element detected - cannot reinitialize (createMediaElementSource limitation)');
-        }
-
-        if (!mediaElement) {
-            mediaElement = realElement;
-            log('setMediaElement: mediaElement set for the first time:', realElement.tagName);
-
-            if (pendingVolumeFactor !== 1 || pendingNormalizationLevel !== 'off') {
-                log('setMediaElement: have pending settings, will attempt to initialize chain');
-                ensureAudioChain();
-            }
-        }
-    } else {
-        log('setMediaElement: WARNING - could NOT extract real HTMLMediaElement from:', element);
-    }
-}
-
-export function getAudioChainDebugInfo(): {
+export interface AudioChainDebugInfo {
     hasContext: boolean;
     contextState: string | null;
     hasSource: boolean;
@@ -272,20 +22,248 @@ export function getAudioChainDebugInfo(): {
     isInitialized: boolean;
     hasMediaElement: boolean;
     mediaElementTagName: string | null;
-} {
-    return {
-        hasContext: !!ctx,
-        contextState: ctx?.state ?? null,
-        hasSource: !!source,
-        hasGain: !!gainNode,
-        hasCompressor: !!compressorNode,
-        gainValue: gainNode?.gain.value ?? null,
-        compressorThreshold: compressorNode?.threshold.value ?? null,
-        compressorRatio: compressorNode?.ratio.value ?? null,
-        pendingVolume: pendingVolumeFactor,
-        pendingNormalization: pendingNormalizationLevel,
-        isInitialized,
-        hasMediaElement: !!mediaElement,
-        mediaElementTagName: mediaElement?.tagName ?? null
-    };
+}
+
+const NORMALIZATION_PRESETS: Record<NormalizationLevel, NormalizationPreset> = {
+    off: {threshold: 0, ratio: 1, knee: 30, attack: 0.003, release: 0.25},
+    light: {threshold: -24, ratio: 2, knee: 30, attack: 0.003, release: 0.25},
+    medium: {threshold: -30, ratio: 4, knee: 20, attack: 0.003, release: 0.15},
+    strong: {threshold: -36, ratio: 8, knee: 10, attack: 0.003, release: 0.1},
+};
+
+const MEDIA_KEYS = ['current', 'element', 'nativeElement', 'media'] as const;
+
+function getPreset(level: string): NormalizationPreset {
+    return NORMALIZATION_PRESETS[level as NormalizationLevel] || NORMALIZATION_PRESETS.off;
+}
+
+class AudioChainManager {
+    private ctx: AudioContext | null = null;
+    private source: MediaElementAudioSourceNode | null = null;
+    private gainNode: GainNode | null = null;
+    private compressorNode: DynamicsCompressorNode | null = null;
+    private mediaElement: HTMLMediaElement | null = null;
+
+    private pendingVolumeFactor = 1;
+    private pendingNormalizationLevel: NormalizationLevel = 'off';
+    private isInitialized = false;
+
+    setMediaElement(element: unknown): void {
+        const realElement = this.extractMediaElement(element);
+
+        if (!realElement) {
+            return;
+        }
+
+        if (this.mediaElement && this.mediaElement !== realElement) {
+            return;
+        }
+
+        if (this.mediaElement) {
+            return;
+        }
+
+        this.mediaElement = realElement;
+
+        if (this.pendingVolumeFactor !== 1 || this.pendingNormalizationLevel !== 'off') {
+            this.ensureChain();
+        }
+    }
+
+    applyVolumeBoost(factor: number): void {
+        this.pendingVolumeFactor = factor;
+
+        if (!this.gainNode) {
+            this.ensureChain();
+            return;
+        }
+
+        this.gainNode.gain.value = Math.max(0, factor);
+        this.ensureContextRunning();
+    }
+
+    applyNormalization(level: string): void {
+        this.pendingNormalizationLevel = level as NormalizationLevel;
+
+        if (!this.compressorNode) {
+            this.ensureChain();
+            return;
+        }
+
+        this.applyCompressor(level);
+        this.ensureContextRunning();
+    }
+
+    resumeOnUserInteraction(): void {
+        if (this.ensureChain()) {
+            this.ensureContextRunning();
+        }
+    }
+
+    getDebugInfo(): AudioChainDebugInfo {
+        return {
+            hasContext: !!this.ctx,
+            contextState: this.ctx?.state ?? null,
+            hasSource: !!this.source,
+            hasGain: !!this.gainNode,
+            hasCompressor: !!this.compressorNode,
+            gainValue: this.gainNode?.gain.value ?? null,
+            compressorThreshold: this.compressorNode?.threshold.value ?? null,
+            compressorRatio: this.compressorNode?.ratio.value ?? null,
+            pendingVolume: this.pendingVolumeFactor,
+            pendingNormalization: this.pendingNormalizationLevel,
+            isInitialized: this.isInitialized,
+            hasMediaElement: !!this.mediaElement,
+            mediaElementTagName: this.mediaElement?.tagName ?? null,
+        };
+    }
+
+    private ensureChain(): boolean {
+        if (this.isInitialized) {
+            this.ensureContextRunning();
+            return true;
+        }
+
+        if (!this.mediaElement) {
+            return false;
+        }
+
+        try {
+            this.ctx = new AudioContext();
+
+            try {
+                this.source = this.ctx.createMediaElementSource(this.mediaElement);
+            } catch {
+                this.cleanup();
+                return false;
+            }
+
+            this.compressorNode = this.ctx.createDynamicsCompressor();
+            this.gainNode = this.ctx.createGain();
+
+            this.source.connect(this.compressorNode);
+            this.compressorNode.connect(this.gainNode);
+            this.gainNode.connect(this.ctx.destination);
+
+            this.isInitialized = true;
+
+            this.applyPendingSettings();
+            this.ensureContextRunning();
+
+            return true;
+        } catch {
+            this.cleanup();
+            return false;
+        }
+    }
+
+    private async ensureContextRunning(): Promise<boolean> {
+        if (!this.ctx) {
+            return false;
+        }
+
+        if (this.ctx.state === 'suspended') {
+            try {
+                await this.ctx.resume();
+            } catch {
+                return false;
+            }
+        }
+
+        return this.ctx.state === 'running';
+    }
+
+    private applyPendingSettings(): void {
+        if (!this.gainNode || !this.compressorNode) {
+            return;
+        }
+
+        this.gainNode.gain.value = Math.max(0, this.pendingVolumeFactor);
+        this.applyCompressor(this.pendingNormalizationLevel);
+    }
+
+    private applyCompressor(level: string): void {
+        if (!this.compressorNode) {
+            return;
+        }
+
+        const preset = getPreset(level);
+        this.compressorNode.threshold.value = preset.threshold;
+        this.compressorNode.ratio.value = preset.ratio;
+        this.compressorNode.knee.value = preset.knee;
+        this.compressorNode.attack.value = preset.attack;
+        this.compressorNode.release.value = preset.release;
+    }
+
+    private cleanup(): void {
+        if (this.ctx) {
+            try {
+                this.ctx.close();
+            } catch {
+                // ignore
+            }
+        }
+        this.ctx = null;
+        this.source = null;
+        this.gainNode = null;
+        this.compressorNode = null;
+        this.isInitialized = false;
+    }
+
+    private extractMediaElement(candidate: unknown): HTMLMediaElement | null {
+        if (candidate === null || candidate === undefined) {
+            return null;
+        }
+
+        if (candidate instanceof HTMLMediaElement) {
+            return candidate;
+        }
+
+        if (typeof candidate !== 'object') {
+            return null;
+        }
+
+        const obj = candidate as Record<string, unknown>;
+
+        for (const key of MEDIA_KEYS) {
+            if (obj[key] instanceof HTMLMediaElement) {
+                return obj[key];
+            }
+        }
+
+        if (typeof obj['tagName'] === 'string') {
+            const maybeEl = candidate as HTMLMediaElement;
+            if (
+                typeof maybeEl.addEventListener === 'function' &&
+                typeof maybeEl.play === 'function' &&
+                typeof maybeEl.pause === 'function'
+            ) {
+                return maybeEl;
+            }
+        }
+
+        return null;
+    }
+}
+
+const manager = new AudioChainManager();
+
+export function applyVolumeBoost(factor: number): void {
+    manager.applyVolumeBoost(factor);
+}
+
+export function applyNormalization(level: string): void {
+    manager.applyNormalization(level);
+}
+
+export function resumeOnUserInteraction(): void {
+    manager.resumeOnUserInteraction();
+}
+
+export function setMediaElement(element: unknown): void {
+    manager.setMediaElement(element);
+}
+
+export function getAudioChainDebugInfo(): AudioChainDebugInfo {
+    return manager.getDebugInfo();
 }
