@@ -3,7 +3,7 @@
 
 HLS streaming, accessible controls, audio processing, and skin support — ready to embed in minutes.
 
-[Quick Start](#quick-start) · [Usage](#usage) · [API](#public-api) · [Development](#development)
+[Quick Start](#quick-start) · [Usage](#usage) · [API](#public-api) · [Development](#development) · [Backend](https://github.com/leo-need-more-coffee/evadeplayer-platform)
 
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
 [![Video.js](https://img.shields.io/badge/Video.js-10-ff6a00)](https://videojs.com)
@@ -26,7 +26,10 @@ It provides a full-featured playback UI with:
 - Hotkeys and gestures
 - Pluggable skin system
 
-The backend that serves the video files lives in a [separate repository](https://github.com/leo-need-more-coffee/evadeplayer-platform).
+This is the **frontend** — the player UI. The backend that handles uploading, transcoding, and serving video lives in a separate repository:
+
+> [github.com/leo-need-more-coffee/evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform)  
+> Go + ffmpeg + nginx — upload, transcode to HLS, serve with signed URLs
 
 
 ## Quick Start
@@ -267,6 +270,14 @@ Host port can be set with `VITE_PORT`:
 ```bash
 VITE_PORT=4173 docker compose up --build
 ```
+
+---
+
+## Related
+
+| Project | Description |
+|---------|-------------|
+| [evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform) | Go backend — upload, transcode to HLS, signed URLs |
 
 ---
 
