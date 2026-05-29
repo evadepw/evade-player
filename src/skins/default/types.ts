@@ -17,6 +17,22 @@ export interface AudioOption {
     label: string;
 }
 
+export interface SeasonOption {
+    label: string;
+    value: string;
+    episodes?: EpisodeOption[];
+}
+
+export interface EpisodeOption {
+    label: string;
+    value: string;
+}
+
+export interface VoiceoverOption {
+    label: string;
+    value: string;
+}
+
 export const AUTO_QUALITY_VALUE = '__auto__';
 export const SUBTITLES_OFF_VALUE = '__subtitles_off__';
 export const AUDIO_OFF_VALUE = '__audio_off__';

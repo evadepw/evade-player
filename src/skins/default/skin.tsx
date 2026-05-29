@@ -46,9 +46,10 @@ import {Button} from './components/button';
 import {VolumePopover} from './components/volume-popover';
 import {SettingsMenu} from './components/settings-menu';
 import {VolumeProcessor} from './components/volume-processor';
-import type {QualityOption} from './types';
+import type {QualityOption, SeasonOption, VoiceoverOption} from './types';
 import {isHlsSource, isRenderProp, isString} from './utils';
 import {Player} from './player';
+import {ContentSelector} from './components/content-selector';
 
 import './skin.css';
 
@@ -115,6 +116,14 @@ export interface VideoPlayerProps {
     poster?: string | RenderProp<Poster.State> | undefined;
     thumbnailStoryboardSrc?: string;
     errorDescription?: string;
+    seasons?: SeasonOption[];
+    voiceovers?: VoiceoverOption[];
+    currentSeason?: string;
+    currentEpisode?: string;
+    currentVoiceover?: string;
+    onSeasonChange?: (value: string) => void;
+    onEpisodeChange?: (value: string) => void;
+    onVoiceoverChange?: (value: string) => void;
 }
 
 interface StoryboardThumbnailApiItem {
@@ -151,6 +160,14 @@ export function VideoPlayer({
     poster,
     thumbnailStoryboardSrc,
     errorDescription,
+    seasons,
+    voiceovers,
+    currentSeason,
+    currentEpisode,
+    currentVoiceover,
+    onSeasonChange,
+    onEpisodeChange,
+    onVoiceoverChange,
     ...rest
 }: VideoPlayerProps): ReactNode {
     const isHls = isHlsSource(src);
@@ -253,6 +270,17 @@ export function VideoPlayer({
                         </div>
                     </ErrorDialog.Popup>
                 </ErrorDialog.Root>
+
+                <ContentSelector
+                    seasons={seasons}
+                    voiceovers={voiceovers}
+                    currentSeason={currentSeason}
+                    currentEpisode={currentEpisode}
+                    currentVoiceover={currentVoiceover}
+                    onSeasonChange={onSeasonChange}
+                    onEpisodeChange={onEpisodeChange}
+                    onVoiceoverChange={onVoiceoverChange}
+                />
 
                 <Controls.Root className="media-surface media-controls">
                     <Tooltip.Provider>

@@ -5,6 +5,9 @@ export { Player } from './skins/default/player';
 
 export type {
   QualityOption,
+  SeasonOption,
+  EpisodeOption,
+  VoiceoverOption,
   SubtitleOption,
   AudioOption,
   SubtitleAppearance,

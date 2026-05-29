@@ -144,6 +144,59 @@
 }
 
 /* ==========================================================================
+   Content Selector (Seasons / Episodes / Voiceover)
+   ========================================================================== */
+
+.media-default-skin .media-content-selector {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 1;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.media-default-skin .media-selector-trigger {
+    display: inline-flex;
+    gap: 0.125rem;
+    align-items: center;
+    width: auto;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.3;
+    border-radius: calc(infinity * 1px);
+}
+
+.media-default-skin .media-button--subtle.media-selector-trigger {
+    color: oklch(1 0 0 / 0.9);
+    background-color: oklch(0 0 0 / 0.55);
+
+    &:hover,
+    &[data-state="open"] {
+        background-color: oklch(0 0 0 / 0.7);
+    }
+
+    &[data-state="open"] .media-selector-trigger__chevron {
+        transform: rotate(180deg);
+    }
+}
+
+.media-default-skin .media-selector-trigger__label {
+    overflow: hidden;
+    max-width: 8rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.media-default-skin .media-selector-trigger__chevron {
+    width: 14px;
+    height: 14px;
+    opacity: 0.5;
+    transition: transform 100ms ease-out;
+}
+
+/* ==========================================================================
    Buffering Indicator
    ========================================================================== */
 

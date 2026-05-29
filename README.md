@@ -25,6 +25,7 @@ It provides a full-featured playback UI with:
 - Thumbnail storyboard previews on the timeline
 - Hotkeys and gestures
 - Pluggable skin system
+- Season, episode, and voiceover selector in the top-right corner
 
 This is the **frontend** — the player UI. The backend that handles uploading, transcoding, and serving video lives in a separate repository:
 
@@ -108,6 +109,44 @@ The storyboard endpoint should return a JSON array:
 ]
 ```
 
+### With season, episode, and voiceover selection
+
+```tsx
+<VideoPlayer
+  src="https://example.com/master.m3u8"
+  seasons={[
+    {
+      label: 'Season 1',
+      value: 's1',
+      episodes: [
+        { label: 'Episode 1', value: 's1e1' },
+        { label: 'Episode 2', value: 's1e2' },
+      ],
+    },
+    {
+      label: 'Season 2',
+      value: 's2',
+      episodes: [
+        { label: 'Episode 1', value: 's2e1' },
+      ],
+    },
+  ]}
+  currentSeason="s1"
+  currentEpisode="s1e1"
+  onSeasonChange={(value) => console.log('Season:', value)}
+  onEpisodeChange={(value) => console.log('Episode:', value)}
+  voiceovers={[
+    { label: 'Russian', value: 'ru' },
+    { label: 'English', value: 'en' },
+    { label: 'Japanese', value: 'ja' },
+  ]}
+  currentVoiceover="ru"
+  onVoiceoverChange={(value) => console.log('Voiceover:', value)}
+/>
+```
+
+All props are optional. The episodes dropdown automatically shows episodes from the selected season. Selectors appear in the top-right corner.
+
 ### Audio boost and normalization
 
 ```tsx
@@ -151,15 +190,17 @@ Parameters:
 
 ### Types
 
-| Export                  | Description             |
-|-------------------------|-------------------------|
-| `VideoPlayerProps`      | Player component props  |
-| `QualityOption`         | Quality variant option  |
-| `SubtitleOption`        | Subtitle track option   |
-| `AudioOption`           | Audio track option      |
-| `SubtitleAppearance`    | Subtitle style settings |
-| `SubtitleSettingOption` | Subtitle style option   |
-| `AudioChainDebugInfo`   | Audio chain debug state |
+| Export                  | Description                |
+|-------------------------|----------------------------|
+| `VideoPlayerProps`      | Player component props     |
+| `QualityOption`         | Quality variant option     |
+| `SeasonOption`          | Season selection option (with nested episodes) |
+| `VoiceoverOption`       | Voiceover / dub option     |
+| `SubtitleOption`        | Subtitle track option      |
+| `AudioOption`           | Audio track option         |
+| `SubtitleAppearance`    | Subtitle style settings    |
+| `SubtitleSettingOption` | Subtitle style option      |
+| `AudioChainDebugInfo`   | Audio chain debug state    |
 
 ### Audio Functions
 
@@ -196,6 +237,10 @@ flowchart TD
     A[Consumer App] --> B[VideoPlayer]
     B --> C[Player.Provider]
     C --> D[Player.Container]
+    D --> C1[ContentSelector]
+    C1 --> C1A[Season]
+    C1 --> C1B[Episode]
+    C1 --> C1C[Voiceover]
     D --> E[HlsVideo / Video]
     D --> F[Poster]
     D --> G[Controls]
