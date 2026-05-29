@@ -45,7 +45,8 @@
 
 ---
 
-## 📖 About
+<a name="about"></a>
+## About
 
 EvadePlayer is a full-featured video player built on [Video.js v10](https://videojs.com), available as a **React component** and as a **framework-agnostic Web Component** (`<evade-player>`).
 
@@ -68,7 +69,8 @@ This is the **frontend** — the player UI. The backend that handles uploading, 
 
 ---
 
-## 🚀 Quick Start
+<a name="quick-start"></a>
+## Quick Start
 
 ### React (npm)
 
@@ -114,7 +116,8 @@ The demo app will be available at `http://localhost:5173`.
 
 ---
 
-## 🎮 Usage
+<a name="usage"></a>
+## Usage
 
 ### Basic
 
@@ -262,7 +265,8 @@ applyNormalization('light'); // 'off' | 'light' | 'medium' | 'strong'
 
 ---
 
-## 🧩 Web Component
+<a name="web-component"></a>
+## Web Component
 
 The player is also available as a framework-agnostic custom element `<evade-player>`. It works in any JavaScript environment — React, Vue, Svelte, Angular, or plain HTML.
 
@@ -393,7 +397,8 @@ Outputs to `dist/`:
 
 ---
 
-## 📋 Public API
+<a name="public-api"></a>
+## Public API
 
 ### Components
 
@@ -500,7 +505,8 @@ Outputs to `dist/`:
 
 ---
 
-## 🏗️ Architecture
+<a name="architecture"></a>
+## Architecture
 
 ```mermaid
 flowchart TD
@@ -542,7 +548,8 @@ flowchart TD
 
 ---
 
-## 🌐 Browser Support
+<a name="browser-support"></a>
+## Browser Support
 
 | Browser | Supported |
 |---|---|
@@ -555,7 +562,8 @@ flowchart TD
 
 ---
 
-## 🛠️ Development
+<a name="development"></a>
+## Development
 
 ### Setup
 
@@ -598,7 +606,8 @@ VITE_PORT=4173 docker compose up --build
 
 ---
 
-## 🔗 Related
+<a name="related"></a>
+## Related
 
 | Project | Description |
 |---|---|
@@ -606,6 +615,7 @@ VITE_PORT=4173 docker compose up --build
 
 ---
 
-## 📄 License
+<a name="license"></a>
+## License
 
 [MIT](LICENSE)
