@@ -47,7 +47,7 @@
 <a name="about"></a>
 ## About
 
-EvadePlayer is a full-featured video player built on [Video.js v10](https://videojs.com), available as a **React component** and as a **framework-agnostic Web Component** (`<evade-player>`).
+EvadePlayer is a full-featured video player by [Alukkart](https://github.com/Alukkart), built on [Video.js v10](https://videojs.com), available as a **React component** and as a **framework-agnostic Web Component** (`<evade-player>`).
 
 | Capability | Description |
 |---|---|
@@ -61,7 +61,7 @@ EvadePlayer is a full-featured video player built on [Video.js v10](https://vide
 | 💾 **State Persistence** | Remembers position, settings, preferences in `localStorage` |
 | 📦 **Web Component** | Works in any framework — React, Vue, Svelte, Angular, or plain HTML |
 
-This is the **frontend** — the player UI. The backend that handles uploading, transcoding, and serving video lives in a separate repository:
+This repository is the **frontend player**. The backend that handles uploading, transcoding, and serving video is a separate project by [leo-need-more-coffee](https://github.com/leo-need-more-coffee):
 
 > [github.com/leo-need-more-coffee/evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform)  
 > Go + ffmpeg + nginx — upload, transcode to HLS, serve with signed URLs
@@ -93,8 +93,8 @@ function App() {
 ### Any framework / no framework (script tag)
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evade-player/dist/evade-player.css">
-<script src="https://cdn.jsdelivr.net/npm/evade-player/dist/evade-player.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evade-player@0.2.0/dist/evade-player.css">
+<script src="https://cdn.jsdelivr.net/npm/evade-player@0.2.0/dist/evade-player.js"></script>
 
 <evade-player
   id="player"
@@ -273,8 +273,8 @@ Two options — **self-contained** (React bundled) or **thin** (load React separ
 #### Option A: Self-contained (~385 kB gzip)
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evade-player/dist/evade-player.css">
-<script src="https://cdn.jsdelivr.net/npm/evade-player/dist/evade-player.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evade-player@0.2.0/dist/evade-player.css">
+<script src="https://cdn.jsdelivr.net/npm/evade-player@0.2.0/dist/evade-player.js"></script>
 
 <evade-player
   id="player"
@@ -291,10 +291,10 @@ Everything in one script. Nothing else to load.
 Use when React is already on the page, or to share the React cache with other scripts:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evade-player/dist/evade-player.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evade-player@0.2.0/dist/evade-player.css">
 <script src="https://cdn.jsdelivr.net/npm/react@19/umd/react.production.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/react-dom@19/umd/react-dom.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/evade-player/dist/evade-player.thin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/evade-player@0.2.0/dist/evade-player.thin.js"></script>
 
 <evade-player
   id="player"
@@ -387,6 +387,7 @@ npm run build:standalone:all      # Both
 ```
 
 Outputs to `dist/`:
+- `evade-player.react.js` / `.css` — React library package files
 - `evade-player.js` / `.mjs` — IIFE + ESM, all deps bundled
 - `evade-player.thin.js` / `.mjs` — IIFE + ESM, requires `React` / `ReactDOM` on `window`
 - `evade-player.css` — shared styles
@@ -602,7 +603,8 @@ VITE_PORT=4173 docker compose up --build
 
 | Project | Description |
 |---|---|
-| [evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform) | Go backend — upload, transcode to HLS, signed URLs |
+| [evade-player](https://github.com/Alukkart/evade-player) | Frontend video player by Alukkart |
+| [evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform) | Go backend by leo-need-more-coffee — upload, transcode to HLS, signed URLs |
 
 
 <a name="license"></a>

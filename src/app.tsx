@@ -176,7 +176,7 @@ export const App: FC = () => {
                             <ExternalIcon/> Read the docs
                         </a>
                         <a
-                            href="https://github.com/alukkart/evade-player"
+                            href="https://github.com/Alukkart/evade-player"
                             className="hero__btn hero__btn--secondary"
                             target="_blank"
                             rel="noopener noreferrer"

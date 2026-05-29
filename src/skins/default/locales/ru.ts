@@ -12,7 +12,7 @@ export const localeRu: LocaleStrings = {
     settingsQuality: 'Качество видео',
     settingsSpeed: 'Скорость воспроизведения',
     settingsSubtitles: 'Субтитры',
-    settingsFragments: 'Фрагменты',
+    settingsFragments: 'Пропускать фрагменты',
     settingsAudio: 'Аудио',
     settingsVideoQuality: 'Качество',
     settingsPlaybackRate: 'Скорость',

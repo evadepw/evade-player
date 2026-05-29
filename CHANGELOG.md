@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.0] — 2026-05-30
+
+### Added
+- Framework-agnostic Web Component distribution for `<evade-player>`
+- Standalone browser bundles: `evade-player.js`, `evade-player.mjs`, `evade-player.thin.js`, and `evade-player.thin.mjs`
+- Type declarations for standalone and Web Component usage
+
+### Changed
+- React library build artifacts renamed from `player-platform.*` to `evade-player.react.*`
+- Package entry points now resolve to `dist/evade-player.react.js`
+- CDN examples now use pinned `evade-player@0.2.0` URLs
+- README now clearly separates `evade-player` frontend player ownership from the `evadeplayer-platform` backend project
+- Project metadata updated for the `evade-player` package and GitHub repository
+
+### Fixed
+- Author/project attribution in README and package metadata
+- Standalone package documentation and examples for jsDelivr usage
+
 ## [0.1.3] — 2026-05-29
 
 ### Fixed
@@ -63,7 +81,8 @@
 - GitHub Actions workflow for npm publishing
 - MIT License
 
-[0.1.3]: https://github.com/Alukkart/evade-player/releases/tag/0.1.3
-[0.1.2]: https://github.com/Alukkart/evade-player/releases/tag/0.1.2
-[0.1.1]: https://github.com/Alukkart/evade-player/releases/tag/0.1.1
-[0.1.0]: https://github.com/Alukkart/evade-player/releases/tag/0.1.0
+[0.2.0]: https://github.com/alukkart/evade-player/releases/tag/0.2.0
+[0.1.3]: https://github.com/alukkart/evade-player/releases/tag/0.1.3
+[0.1.2]: https://github.com/alukkart/evade-player/releases/tag/0.1.2
+[0.1.1]: https://github.com/alukkart/evade-player/releases/tag/0.1.1
+[0.1.0]: https://github.com/alukkart/evade-player/releases/tag/0.1.0

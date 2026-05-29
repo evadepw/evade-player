@@ -1,8 +1,8 @@
 {
   "name": "evade-player",
-  "description": "React/Web Component video player powered by Video.js — HLS, accessible controls, audio processing, content navigation, and fragment skip support",
+  "description": "React/Web Component video player by Alukkart, powered by Video.js — HLS, accessible controls, audio processing, content navigation, and fragment skip support",
   "private": false,
-  "version": "0.1.3",
+  "version": "0.2.0",
   "type": "module",
   "license": "MIT",
   "author": "Alukkart",
@@ -25,16 +25,16 @@
     "accessible",
     "anime"
   ],
-  "main": "./dist/player-platform.js",
-  "module": "./dist/player-platform.js",
+  "main": "./dist/evade-player.react.js",
+  "module": "./dist/evade-player.react.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/player-platform.js",
-      "default": "./dist/player-platform.js"
+      "import": "./dist/evade-player.react.js",
+      "default": "./dist/evade-player.react.js"
     },
-    "./skins/default/skin.css": "./dist/player-platform.css"
+    "./skins/default/skin.css": "./dist/evade-player.react.css"
   },
   "files": ["dist"],
   "scripts": {

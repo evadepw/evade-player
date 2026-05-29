@@ -317,7 +317,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                 <Settings className="media-icon"/>
                                 <span>{t.settingsFragments}</span>
                             </span>
-                            <span>{fragmentSettings ? t.commonOn : t.commonOff}</span>
+                            <span>{Object.values(fragmentSettings).some(Boolean) ? t.commonOn : t.commonOff}</span>
                         </div>
                         <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
                              onClick={() => navigateTo('audio')}

@@ -12,7 +12,7 @@ export const localeEn: LocaleStrings = {
     settingsQuality: 'Video quality',
     settingsSpeed: 'Playback speed',
     settingsSubtitles: 'Subtitles',
-    settingsFragments: 'Fragments',
+    settingsFragments: 'Skip fragments',
     settingsAudio: 'Audio',
     settingsVideoQuality: 'Quality',
     settingsPlaybackRate: 'Speed',
