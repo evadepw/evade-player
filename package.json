@@ -1,8 +1,30 @@
 {
   "name": "evade-player",
+  "description": "React/Web Component video player powered by Video.js — HLS, accessible controls, audio processing, content navigation, and fragment skip support",
   "private": false,
   "version": "0.1.2",
   "type": "module",
+  "license": "MIT",
+  "author": "leo-need-more-coffee",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leo-need-more-coffee/evade-player.git"
+  },
+  "homepage": "https://github.com/leo-need-more-coffee/evade-player#readme",
+  "bugs": {
+    "url": "https://github.com/leo-need-more-coffee/evade-player/issues"
+  },
+  "keywords": [
+    "video",
+    "player",
+    "videojs",
+    "react",
+    "web-component",
+    "hls",
+    "streaming",
+    "accessible",
+    "anime"
+  ],
   "main": "./dist/player-platform.js",
   "module": "./dist/player-platform.js",
   "types": "./dist/index.d.ts",
@@ -19,8 +41,12 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
+    "build:standalone": "vite build --config vite.config.standalone.ts",
+    "build:standalone:thin": "vite build --config vite.config.standalone-thin.ts",
+    "build:standalone:all": "npm run build:standalone && npm run build:standalone:thin",
+    "build:all": "npm run build && npm run build:standalone:all",
     "lint": "eslint .",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build:all"
   },
   "peerDependencies": {
     "react": "^19.0.0",

@@ -141,24 +141,43 @@ function extractSeasonFromEpisode(episode?: string): string | undefined {
 }
 
 export interface VideoPlayerProps {
+    /** Video source URL (HLS or progressive). */
     src: string;
+    /** Available quality variants for manual selection. */
     qualities?: QualityOption[];
+    /** Inline styles on the player container. */
     style?: CSSProperties;
+    /** Additional CSS class on the player container. */
     className?: string;
+    /** Poster image URL or render prop. */
     poster?: string | RenderProp<Poster.State> | undefined;
+    /** JSON endpoint returning thumbnail storyboard data for timeline previews. */
     thumbnailStoryboardSrc?: string;
+    /** Custom error message shown in the error dialog. */
     errorDescription?: string;
+    /** Season/episode/voiceover hierarchy for content navigation. */
     seasons?: SeasonOption[];
+    /** Currently selected season value. Derived from `currentEpisode` when omitted. */
     currentSeason?: string;
+    /** Currently selected episode value (e.g. `"s1e3"`). */
     currentEpisode?: string;
+    /** Currently selected voiceover/dub value. */
     currentVoiceover?: string;
+    /** Called when the user selects a different season. */
     onSeasonChange?: (value: string) => void;
+    /** Called when the user selects a different episode. */
     onEpisodeChange?: (value: string) => void;
+    /** Called when the user selects a different voiceover. */
     onVoiceoverChange?: (value: string) => void;
+    /** External playback state to restore (position, episode, etc.). */
     savedState?: PlaybackState | null;
+    /** Called when the player wants to persist playback state. */
     onSaveState?: (state: PlaybackState) => void;
+    /** Fragment segments (opening, ending, preview, compilation) to mark on the timeline. */
     fragments?: Fragment[];
+    /** Default auto-skip settings for fragment types. */
     fragmentSettings?: Partial<FragmentSettings>;
+    /** UI language (`"ru"` or `"en"`). Defaults to `"ru"`. */
     locale?: Locale;
 }
 
@@ -181,11 +200,44 @@ interface StoryboardThumbnailItem {
 }
 
 /**
+ * Full-featured video player with HLS streaming, accessible controls,
+ * audio processing, content navigation, and fragment skip support.
+ *
  * @example
  * ```tsx
+ * import { VideoPlayer } from 'evade-player';
+ * import 'evade-player/skins/default/skin.css';
+ *
  * <VideoPlayer
- *   src="https://stream.mux.com/BV3YZtogl89mg9VcNBhhnHm02Y34zI1nlMuMQfAbl3dM/highest.mp4"
- *   poster="https://image.mux.com/BV3YZtogl89mg9VcNBhhnHm02Y34zI1nlMuMQfAbl3dM/thumbnail.webp"
+ *   src="https://example.com/master.m3u8"
+ *   poster="https://example.com/poster.jpg"
+ *   qualities={[
+ *     { label: '1080p', src: 'https://example.com/1080.m3u8' },
+ *     { label: '720p',  src: 'https://example.com/720.m3u8' },
+ *   ]}
+ *   seasons={[{
+ *     label: 'Season 1',
+ *     value: 's1',
+ *     episodes: [{
+ *       label: 'Episode 1',
+ *       value: 's1e1',
+ *       voiceovers: [
+ *         { label: 'Russian', value: 'ru' },
+ *         { label: 'English', value: 'en' },
+ *       ],
+ *     }],
+ *   }]}
+ *   currentSeason="s1"
+ *   currentEpisode="s1e1"
+ *   currentVoiceover="ru"
+ *   fragments={[
+ *     { type: 'opening', startTime: 0, endTime: 90 },
+ *     { type: 'ending', startTime: 1380, endTime: 1440 },
+ *   ]}
+ *   locale="ru"
+ *   onSeasonChange={(s) => console.log('Season:', s)}
+ *   onEpisodeChange={(e) => console.log('Episode:', e)}
+ *   onVoiceoverChange={(v) => console.log('Voiceover:', v)}
  * />
  * ```
  */

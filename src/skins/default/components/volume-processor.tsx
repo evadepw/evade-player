@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {usePlayerContext} from '@videojs/react';
-import {setMediaElement, resumeOnUserInteraction, getAudioChainDebugInfo} from './audio-chain';
+import {setMediaElement, resumeOnUserInteraction} from './audio-chain';
 
 export function VolumeProcessor(): null {
     const {container} = usePlayerContext();
@@ -13,7 +13,6 @@ export function VolumeProcessor(): null {
 
         const findAndAttachRealMediaElement = (): HTMLMediaElement | null => {
             if (!(container instanceof HTMLElement)) {
-                log('findAndAttachRealMediaElement: container is not HTMLElement');
                 return null;
             }
 
@@ -49,12 +48,6 @@ export function VolumeProcessor(): null {
         const setupListeners = (media: HTMLMediaElement): void => {
             const handlePlay = (): void => {
                 resumeOnUserInteraction();
-
-                if (DEBUG) {
-                    setTimeout(() => {
-                        const info = getAudioChainDebugInfo();
-                    }, 100);
-                }
             };
 
             const handleInteraction = (): void => {

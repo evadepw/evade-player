@@ -1,6 +1,8 @@
 export { VideoPlayer } from './skins/default/skin';
 export type { VideoPlayerProps } from './skins/default/skin';
 
+export { EvadePlayerElement } from './web-component';
+
 export { Player } from './skins/default/player';
 
 export type {
