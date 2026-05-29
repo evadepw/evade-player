@@ -56,8 +56,6 @@ function App() {
 ### Dev server with demo app
 
 ```bash
-git clone https://github.com/leo-need-more-coffee/evadeplayer-platform.git
-cd evadeplayer-platform
 npm ci
 npm run dev
 ```
@@ -119,33 +117,35 @@ The storyboard endpoint should return a JSON array:
       label: 'Season 1',
       value: 's1',
       episodes: [
-        { label: 'Episode 1', value: 's1e1' },
-        { label: 'Episode 2', value: 's1e2' },
-      ],
-    },
-    {
-      label: 'Season 2',
-      value: 's2',
-      episodes: [
-        { label: 'Episode 1', value: 's2e1' },
+        {
+          label: 'Episode 1',
+          value: 's1e1',
+          voiceovers: [
+            { label: 'Russian', value: 'ru' },
+            { label: 'English', value: 'en' },
+          ],
+        },
+        {
+          label: 'Episode 2',
+          value: 's1e2',
+          voiceovers: [
+            { label: 'Russian', value: 'ru' },
+            { label: 'English', value: 'en' },
+          ],
+        },
       ],
     },
   ]}
   currentSeason="s1"
   currentEpisode="s1e1"
+  currentVoiceover="ru"
   onSeasonChange={(value) => console.log('Season:', value)}
   onEpisodeChange={(value) => console.log('Episode:', value)}
-  voiceovers={[
-    { label: 'Russian', value: 'ru' },
-    { label: 'English', value: 'en' },
-    { label: 'Japanese', value: 'ja' },
-  ]}
-  currentVoiceover="ru"
   onVoiceoverChange={(value) => console.log('Voiceover:', value)}
 />
 ```
 
-All props are optional. The episodes dropdown automatically shows episodes from the selected season. Selectors appear in the top-right corner.
+All props are optional. The episodes dropdown automatically shows episodes from the selected season. Voiceovers are nested within each episode. Selectors appear in the top-right corner.
 
 ### Audio boost and normalization
 
@@ -188,19 +188,45 @@ Parameters:
 | `VideoPlayer` | Main player component                 |
 | `Player`      | Video.js store (Provider + Container) |
 
+### VideoPlayer Props
+
+| Prop                      | Type                        | Description                                    |
+|---------------------------|-----------------------------|------------------------------------------------|
+| `src`                     | `string`                    | Video source URL                               |
+| `poster`                  | `string \| undefined`       | Poster image URL                               |
+| `qualities`               | `QualityOption[]`           | Quality variants for manual selection          |
+| `thumbnailStoryboardSrc`  | `string`                    | Storyboard JSON endpoint for timeline previews |
+| `seasons`                 | `SeasonOption[]`            | Season/episode/voiceover hierarchy             |
+| `currentSeason`           | `string`                    | Currently selected season value                |
+| `currentEpisode`          | `string`                    | Currently selected episode value               |
+| `currentVoiceover`        | `string`                    | Currently selected voiceover value             |
+| `onSeasonChange`          | `(value: string) => void`   | Season change callback                         |
+| `onEpisodeChange`         | `(value: string) => void`   | Episode change callback                        |
+| `onVoiceoverChange`       | `(value: string) => void`   | Voiceover change callback                      |
+| `savedState`              | `PlaybackState \| null`     | External playback state to restore             |
+| `onSaveState`             | `(state: PlaybackState) => void` | Callback when state is saved              |
+| `errorDescription`        | `string`                    | Custom error message                           |
+| `style`                   | `CSSProperties`             | Inline styles on the player container          |
+| `className`               | `string`                    | Additional CSS class on the player container   |
+
 ### Types
 
-| Export                  | Description                |
-|-------------------------|----------------------------|
-| `VideoPlayerProps`      | Player component props     |
-| `QualityOption`         | Quality variant option     |
-| `SeasonOption`          | Season selection option (with nested episodes) |
-| `VoiceoverOption`       | Voiceover / dub option     |
-| `SubtitleOption`        | Subtitle track option      |
-| `AudioOption`           | Audio track option         |
-| `SubtitleAppearance`    | Subtitle style settings    |
-| `SubtitleSettingOption` | Subtitle style option      |
-| `AudioChainDebugInfo`   | Audio chain debug state    |
+| Export                    | Description                          |
+|---------------------------|--------------------------------------|
+| `VideoPlayerProps`        | Player component props               |
+| `QualityOption`           | Quality variant option               |
+| `SeasonOption`            | Season selection option (with nested episodes) |
+| `EpisodeOption`           | Episode selection option (with nested voiceovers) |
+| `VoiceoverOption`         | Voiceover / dub option               |
+| `SubtitleOption`          | Subtitle track option                |
+| `AudioOption`             | Audio track option                   |
+| `SubtitleAppearance`      | Subtitle style settings              |
+| `SubtitleSettingOption`   | Subtitle style option                |
+| `SubtitleSettingsView`    | Subtitle settings view key           |
+| `SettingsView`            | Settings menu view key               |
+| `PlaybackState`           | Saved playback position and context   |
+| `PlayerSettings`          | Persistent player preferences         |
+| `AudioChainDebugInfo`     | Audio chain debug state              |
 
 ### Audio Functions
 
@@ -211,6 +237,17 @@ Parameters:
 | `resumeOnUserInteraction` | Resume AudioContext on user gesture            |
 | `setMediaElement`         | Attach a media element to the chain            |
 | `getAudioChainDebugInfo`  | Get current audio chain state                  |
+
+### State Persistence Functions
+
+| Export                    | Description                                     |
+|---------------------------|-------------------------------------------------|
+| `savePlaybackState`       | Save playback position and context to localStorage |
+| `loadPlaybackState`       | Load saved playback state from localStorage     |
+| `clearPlaybackState`      | Clear saved playback state from localStorage    |
+| `savePlayerSettings`      | Save player preferences (volume, subtitles, etc.) |
+| `loadPlayerSettings`      | Load saved player preferences from localStorage |
+| `clearPlayerSettings`     | Clear saved player preferences from localStorage |
 
 ### Preset Constants
 
@@ -295,14 +332,10 @@ npm run lint      # Run ESLint
 ### ENV Configuration (demo app)
 
 ```dotenv
-VITE_VIDEO_PROVIDER_HOST=http://10.88.88.2
-VITE_VIDEO_PROVIDER_PROXY_PATH=/hls-proxy
-VITE_VIDEO_POSTER_PATH=/thumbnails
-VITE_DEFAULT_VIDEO_ID=3fb87d2e-b294-4c4e-a937-9be65496e1f7
-VITE_HARDCODED_STREAM_URL=
+VITE_VIDEO_SRC=https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8
+VITE_POSTER_SRC=
+VITE_THUMBNAIL_STORYBOARD_SRC=
 ```
-
-`VITE_HARDCODED_STREAM_URL` is an optional override — if set, the player ignores all URL parameters and uses it directly.
 
 ### Docker
 

@@ -6,7 +6,7 @@ export function savePlayerSettings(settings: Partial<PlayerSettings>): void {
     try {
         const existing = loadPlayerSettings() ?? {} as PlayerSettings;
         localStorage.setItem(STORAGE_KEY, JSON.stringify({...existing, ...settings}));
-    } catch {}
+    } catch { /* localStorage may be unavailable */ }
 }
 
 export function loadPlayerSettings(): PlayerSettings | null {
@@ -14,7 +14,7 @@ export function loadPlayerSettings(): PlayerSettings | null {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return null;
         return JSON.parse(raw) as PlayerSettings;
-    } catch {
+    } catch { /* localStorage may be unavailable */
         return null;
     }
 }
@@ -22,5 +22,5 @@ export function loadPlayerSettings(): PlayerSettings | null {
 export function clearPlayerSettings(): void {
     try {
         localStorage.removeItem(STORAGE_KEY);
-    } catch {}
+    } catch { /* localStorage may be unavailable */ }
 }

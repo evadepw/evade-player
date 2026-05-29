@@ -1,0 +1,357 @@
+/* ==========================================================================
+   Content Selector (Seasons / Episodes / Voiceover)
+   ========================================================================== */
+
+.media-default-skin .media-content-container {
+    position: absolute;
+    top: 1em;
+    left: 1rem;
+    z-index: 1;
+    display: flex;
+    gap: 0.25rem;
+    color: white;
+    width: fit-content;
+}
+
+.media-default-skin .media-content-controls {
+    display: flex;
+    column-gap: 0.075rem;
+    align-items: center;
+    padding: 0.25rem;
+    border-radius: 1.5rem;
+    transform-origin: top left;
+    transition-timing-function: var(--media-controls-transition-timing-function);
+    transition-duration: var(--media-controls-transition-duration);
+
+    @media (pointer: fine) {
+        transition-property: scale, filter, opacity;
+        will-change: scale, filter, opacity;
+    }
+
+    @media (pointer: coarse) {
+        transition-property: scale, opacity;
+        will-change: scale, opacity;
+    }
+
+    &:not([data-visible]) {
+        pointer-events: none;
+        opacity: 0;
+        scale: 0.95;
+
+        @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+            filter: blur(8px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            scale: 1;
+        }
+    }
+}
+
+/* ==========================================================================
+   Buffering Indicator
+   ========================================================================== */
+
+.media-default-skin .media-buffering-indicator {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: oklch(1 0 0);
+    pointer-events: none;
+
+    &:not([data-visible]) {
+        --media-spinner-animation: none;
+    }
+
+    &[data-visible] {
+        display: flex;
+    }
+
+    .media-surface {
+        padding: 0.25rem;
+        border-radius: 100%;
+    }
+}
+
+/* ==========================================================================
+   Error Dialog
+   ========================================================================== */
+
+.media-default-skin .media-error {
+    outline: none;
+}
+
+.media-default-skin .media-error:not([data-open]) {
+    display: none;
+}
+
+.media-default-skin .media-error__title {
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.media-default-skin .media-error__description {
+    overflow-wrap: anywhere;
+    opacity: 0.7;
+}
+
+.media-default-skin .media-error__actions {
+    display: flex;
+    gap: 0.5rem;
+
+    & > * {
+        flex: 1;
+    }
+}
+
+.media-default-skin .media-error[data-open] ~ .media-controls * {
+    visibility: hidden;
+}
+
+/* --- Error dialog — video skin variant --- */
+
+.media-default-skin--video .media-error {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-default-skin--video .media-error__dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 18rem;
+    padding: 0.75rem;
+    color: oklch(1 0 0);
+    text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
+    border-radius: 1.75rem;
+    transition-delay: var(--media-error-dialog-transition-delay);
+    transition-timing-function: var(--media-error-dialog-transition-timing-function);
+    transition-duration: var(--media-error-dialog-transition-duration);
+    transition-property: opacity, scale;
+}
+
+.media-default-skin--video .media-error[data-starting-style] .media-error__dialog,
+.media-default-skin--video .media-error[data-ending-style] .media-error__dialog {
+    opacity: 0;
+    scale: 0.5;
+}
+
+.media-default-skin--video .media-error[data-ending-style] .media-error__dialog {
+    transition-delay: 0ms;
+}
+
+.media-default-skin--video .media-error__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem 0.375rem;
+    text-shadow: inherit;
+}
+
+.media-default-skin--video .media-error__title {
+    font-size: 1rem;
+}
+
+/* ==========================================================================
+   Poster Image
+   ========================================================================== */
+
+.media-default-skin media-poster,
+.media-default-skin > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+
+.media-default-skin media-poster:not([data-visible]),
+.media-default-skin > img:not([data-visible]) {
+    opacity: 0;
+}
+
+.media-default-skin media-poster ::slotted(img),
+.media-default-skin media-poster img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: var(--media-object-fit, contain);
+    object-position: var(--media-object-position, center);
+    border-radius: var(--media-video-border-radius);
+}
+
+.media-default-skin > img {
+    object-fit: var(--media-object-fit, contain);
+    object-position: var(--media-object-position, center);
+    border-radius: inherit;
+}
+
+.media-default-skin:fullscreen media-poster ::slotted(img),
+.media-default-skin:fullscreen media-poster img,
+.media-default-skin:fullscreen > img {
+    object-fit: contain;
+}
+
+/* ==========================================================================
+   Media preview
+   ========================================================================== */
+
+.media-default-skin .media-preview {
+    pointer-events: none;
+    background-color: oklch(0 0 0 / 0.9);
+    border-radius: 0.75rem;
+
+    & .media-preview__thumbnail {
+        position: relative;
+        display: block;
+        overflow: clip;
+        border-radius: inherit;
+
+        &::after {
+            position: absolute;
+            inset: 0;
+            content: "";
+            background-image: linear-gradient(to top, oklch(0 0 0 / 0.8), oklch(0 0 0 / 0.3), oklch(0 0 0 / 0));
+            border-radius: inherit;
+        }
+    }
+
+    & .media-preview__time {
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0.5rem;
+        text-align: center;
+    }
+
+    & .media-overlay {
+        opacity: 1;
+    }
+
+    & .media-preview__spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        opacity: 0;
+        translate: -50% -50%;
+    }
+
+    & .media-preview__thumbnail,
+    & .media-preview__spinner {
+        transition: opacity 150ms ease-out;
+    }
+
+    &:not(:has(.media-preview__thumbnail[data-loading])) {
+        & .media-preview__spinner {
+            --media-spinner-animation: none;
+        }
+    }
+
+    &:has(.media-preview__thumbnail[data-loading]) {
+        & .media-preview__thumbnail {
+            opacity: 0;
+        }
+
+        & .media-preview__spinner {
+            opacity: 1;
+        }
+    }
+}
+
+/* ==========================================================================
+   Resume Prompt
+   ========================================================================== */
+
+.media-resume-prompt {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: oklch(0 0 0 / 0.65);
+}
+
+.media-resume-prompt__dialog {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 18rem;
+    padding: 2rem;
+    color: oklch(1 0 0);
+    text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
+    border-radius: 1.75rem;
+}
+
+.media-resume-prompt__close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    aspect-ratio: 1;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-radius: calc(infinity * 1px);
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+    transition-property: background-color, outline-offset, scale;
+
+    &:focus-visible {
+        outline-color: currentColor;
+        outline-offset: 2px;
+    }
+
+    &:hover {
+        background-color: oklch(from currentColor l c h / 0.1);
+    }
+
+    &:active {
+        scale: 0.9;
+    }
+
+    & .media-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+.media-resume-prompt__content {
+    padding: 0.5rem 0.5rem 0.375rem;
+}
+
+.media-resume-prompt__text {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.media-resume-prompt__subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.25;
+    opacity: 0.7;
+}
+
+.media-resume-prompt__actions {
+    display: flex;
+    gap: 0.5rem;
+
+    & > * {
+        flex: 1;
+    }
+}

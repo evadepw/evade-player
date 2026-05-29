@@ -1,0 +1,314 @@
+/* ==========================================================================
+   Controls
+   ========================================================================== */
+
+.media-default-skin .media-controls {
+    display: flex;
+    column-gap: 0.075rem;
+    align-items: center;
+    padding: 0.375rem;
+    container: media-controls / inline-size;
+    text-shadow: 0 1px 0 var(--media-current-shadow-color);
+    border-radius: 1.5rem;
+}
+
+/* ==========================================================================
+   Time Display
+   ========================================================================== */
+
+.media-default-skin .media-time-controls {
+    display: flex;
+    flex: 1;
+    gap: 0.75rem;
+    align-items: center;
+    padding-inline: 0.5rem;
+    container: media-time-controls / inline-size;
+}
+
+.media-default-skin .media-time {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+/* Base button */
+.media-default-skin .media-button {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    touch-action: manipulation;
+    cursor: pointer;
+    user-select: none;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    border: none;
+    border-radius: calc(infinity * 1px);
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+    transition-property: background-color, outline-offset, scale;
+    will-change: scale;
+
+    &:focus-visible {
+        outline-color: currentColor;
+        outline-offset: 2px;
+    }
+
+    &:active {
+        scale: 0.98;
+    }
+
+    &[disabled] {
+        cursor: not-allowed;
+        opacity: 0.5;
+        filter: grayscale(1);
+    }
+
+    &[data-availability="unavailable"],
+    &[data-availability="unsupported"] {
+        display: none;
+    }
+}
+
+/* Primary button variant */
+.media-default-skin .media-button--primary {
+    font-weight: 500;
+    color: oklch(0 0 0);
+    text-shadow: none;
+    background: oklch(1 0 0);
+}
+
+/* Subtle button variant */
+.media-default-skin .media-button--subtle {
+    color: inherit;
+    text-shadow: inherit;
+    background: transparent;
+
+    &:hover,
+    &:focus-visible,
+    &[aria-expanded="true"] {
+        text-decoration: none;
+        background-color: oklch(from currentColor l c h / 0.1);
+    }
+}
+
+/* Icon button variant */
+.media-default-skin .media-button--icon {
+    display: grid;
+    width: 2.25rem;
+    aspect-ratio: 1;
+    padding: 0;
+
+    &:active {
+        scale: 0.9;
+    }
+
+    & .media-icon {
+        grid-area: 1 / 1;
+        transition-behavior: allow-discrete;
+        transition-property: display, opacity;
+        transition-duration: 150ms;
+        transition-timing-function: ease-out;
+        filter: drop-shadow(0 1px 0 var(--media-current-shadow-color));
+    }
+}
+
+/* Seek button */
+.media-default-skin .media-button--seek {
+    & .media-icon__label {
+        position: absolute;
+        right: -1px;
+        bottom: -3px;
+        font-size: 10px;
+        font-weight: 480;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &:has(.media-icon--flipped) .media-icon__label {
+        right: unset;
+        left: -1px;
+    }
+}
+
+/* Playback rate button */
+.media-default-skin .media-button--playback-rate {
+    padding: 0;
+    font-variant-numeric: tabular-nums;
+
+    &::after {
+        width: 4ch;
+        content: attr(data-rate) "\00D7";
+    }
+
+    &[data-inline-rate-label]::after {
+        content: none;
+    }
+}
+
+/* Quality button */
+.media-default-skin .media-button--quality {
+    width: auto;
+    padding-inline: 0.625rem;
+    font-variant-numeric: tabular-nums;
+
+    &::after {
+        content: attr(data-quality);
+    }
+}
+
+/* Settings button */
+.media-default-skin .media-button--settings {
+    width: 2.25rem;
+    padding-inline: 0;
+}
+
+/* Live button */
+.media-default-skin .media-button--live {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    width: auto;
+    aspect-ratio: auto;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    &::before {
+        display: inline-block;
+        flex-shrink: 0;
+        width: 0.5rem;
+        height: 0.5rem;
+        content: "";
+        background-color: oklch(from currentColor l c h / 0.4);
+        border-radius: 50%;
+        transition: background-color 150ms ease-out;
+    }
+
+    &[data-live-edge]::before {
+        background-color: oklch(0.65 0.22 27);
+    }
+}
+
+/* ==========================================================================
+   Button Groups
+   ========================================================================== */
+
+.media-default-skin .media-button-group {
+    display: flex;
+    gap: 0.075rem;
+    align-items: center;
+
+    @container media-root (width > 42rem) {
+        gap: 0.125rem;
+    }
+}
+
+/* ==========================================================================
+   Icons
+   ========================================================================== */
+
+.media-default-skin .media-icon__container {
+    position: relative;
+}
+
+.media-default-skin .media-icon {
+    flex-shrink: 0;
+    width: var(--media-icon-size);
+    height: var(--media-icon-size);
+}
+
+.media-default-skin .media-icon--flipped {
+    scale: -1 1;
+}
+
+/* ==========================================================================
+   Controls — hide/show behavior (video skin variant)
+   ========================================================================== */
+
+.media-default-skin--video .media-controls {
+    position: absolute;
+    inset-inline: 0.5rem;
+    bottom: 0.5rem;
+    z-index: 10;
+    flex-wrap: wrap;
+    max-width: 56rem;
+    margin-inline: auto;
+    color: var(--media-color-primary, oklch(1 0 0));
+    transform-origin: bottom;
+    transition-timing-function: var(--media-controls-transition-timing-function);
+    transition-duration: var(--media-controls-transition-duration);
+
+    @media (pointer: fine) {
+        transition-property: scale, filter, opacity;
+        will-change: scale, filter, opacity;
+    }
+
+    @media (pointer: coarse) {
+        transition-property: scale, opacity;
+        will-change: scale, opacity;
+    }
+
+    &:not([data-visible]) {
+        pointer-events: none;
+        opacity: 0;
+        scale: 0.95;
+
+        @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+            filter: blur(8px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            scale: 1;
+        }
+    }
+
+    & .media-time-controls {
+        flex: 0 0 100%;
+        order: -1;
+        padding-inline: 0.625rem;
+    }
+
+    & .media-button-group:first-child {
+        flex: 1;
+        text-align: left;
+    }
+
+    & .media-button-group:last-child {
+        flex: 1;
+        justify-content: end;
+    }
+
+    @container media-root (width > 42rem) {
+        inset-inline: 0.75rem;
+        bottom: 0.75rem;
+        flex-wrap: nowrap;
+        column-gap: 0.125rem;
+        padding: 0.25rem;
+
+        & .media-time-controls {
+            flex: 1;
+            order: unset;
+        }
+
+        & .media-button-group:first-child,
+        & .media-button-group:last-child {
+            flex: 0 0 auto;
+        }
+    }
+}
+
+.media-default-skin--video .media-error[data-open] ~ .media-controls {
+    display: none;
+}
+
+.media-default-skin--video:has(.media-controls:not([data-visible])) {
+    cursor: none;
+}

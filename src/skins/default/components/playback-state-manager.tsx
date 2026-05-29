@@ -1,6 +1,6 @@
 'use client';
 
-import {useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from 'react';
+import {startTransition, useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from 'react';
 import {usePlayer} from '@videojs/react';
 import type {PlaybackState, SeasonOption} from '../types';
 import {savePlaybackState, loadPlaybackState} from '../utils/playback-state';
@@ -34,7 +34,7 @@ export function PlaybackStateManager({
     onEpisodeChange,
     onVoiceoverChange,
 }: PlaybackStateManagerProps): ReactNode {
-    const store = usePlayer() as {
+    const store = usePlayer() as unknown as {
         seek: (time: number) => void;
         setVolume: (volume: number) => void;
         setPlaybackRate: (rate: number) => void;
@@ -48,10 +48,8 @@ export function PlaybackStateManager({
     const playbackRate = usePlayer((s) => (s as { playbackRate: number }).playbackRate);
 
     const currentTimeRef = useRef(currentTime);
-    currentTimeRef.current = currentTime;
 
     const onSaveStateRef = useRef(onSaveState);
-    onSaveStateRef.current = onSaveState;
 
     const restoredRef = useRef(false);
 
@@ -61,6 +59,9 @@ export function PlaybackStateManager({
     });
     const [showResume, setShowResume] = useState(false);
     const pendingSeekRef = useRef<number | null>(null);
+
+    useEffect(() => { currentTimeRef.current = currentTime; }, [currentTime]);
+    useEffect(() => { onSaveStateRef.current = onSaveState; }, [onSaveState]);
 
     const resumeSubtitle = useMemo(() => {
         if (!resumeState) return undefined;
@@ -107,19 +108,21 @@ export function PlaybackStateManager({
     );
 
     const buildStateRef = useRef(buildState);
-    buildStateRef.current = buildState;
+    useEffect(() => { buildStateRef.current = buildState; }, [buildState]);
 
     // Load saved state on mount or when src/savedStateProp changes
     useEffect(() => {
         if (!src) return;
         const state = savedStateProp !== undefined ? savedStateProp : loadPlaybackState(src);
-        if (state && state.time >= 1 && state.time < (duration || Infinity)) {
-            setResumeState(state);
-            setShowResume(true);
-        } else {
-            setResumeState(null);
-            setShowResume(false);
-        }
+        startTransition(() => {
+            if (state && state.time >= 1 && state.time < (duration || Infinity)) {
+                setResumeState(state);
+                setShowResume(true);
+            } else {
+                setResumeState(null);
+                setShowResume(false);
+            }
+        });
     }, [src, savedStateProp, duration]);
 
     // Restore volume/muted/playbackRate after media is ready

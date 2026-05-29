@@ -121,10 +121,39 @@ function resolvePlaylistUrl(masterSrc: string, uri: string): string {
     }
 }
 
+function sortByQuality(a: QualityMenuOption, b: QualityMenuOption): number {
+    const extractHeight = (label: string): number => {
+        const match = label.match(/^(\d+)[pP]/);
+        return match ? parseInt(match[1], 10) : 0;
+    };
+
+    const extractBitrate = (label: string): number => {
+        const match = label.match(/^([\d.]+)\s*Mbps/);
+        return match ? parseFloat(match[1]) : 0;
+    };
+
+    const aHeight = extractHeight(a.label);
+    const bHeight = extractHeight(b.label);
+
+    if (aHeight && bHeight) return aHeight - bHeight;
+    if (aHeight) return -1;
+    if (bHeight) return 1;
+
+    const aBitrate = extractBitrate(a.label);
+    const bBitrate = extractBitrate(b.label);
+
+    if (aBitrate && bBitrate) return aBitrate - bBitrate;
+    if (aBitrate) return -1;
+    if (bBitrate) return 1;
+
+    return 0;
+}
+
 export function buildQualityMenuOptions(options: QualityOption[], masterSource: string): QualityMenuOption[] {
     const menuOptions: QualityMenuOption[] = options
         .filter((option) => option.src !== masterSource)
-        .map((option) => ({...option, label: normalizeQualityLabel(option.label), value: option.src}));
+        .map((option) => ({...option, label: normalizeQualityLabel(option.label), value: option.src}))
+        .sort(sortByQuality);
 
     if (isHlsSource(masterSource)) {
         menuOptions.unshift({label: 'Auto', src: masterSource, value: AUTO_QUALITY_VALUE});

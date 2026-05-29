@@ -2,7 +2,7 @@ import {useEffect} from 'react';
 import {usePlayerContext} from '@videojs/react';
 import {setMediaElement, resumeOnUserInteraction, getAudioChainDebugInfo} from './audio-chain';
 
-const DEBUG = true;
+const DEBUG = import.meta.env.DEV;
 
 function log(...args: unknown[]): void {
     if (DEBUG) {

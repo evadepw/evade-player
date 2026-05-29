@@ -1,9 +1,10 @@
 import type {ReactNode} from 'react';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Menu, useMedia, usePlayer} from '@videojs/react';
 import {Captions, Check, ChevronLeft, Gauge, Palette, Settings, Timer, Volume2} from 'lucide-react';
 import {Button} from './button';
+import {SubtitleSettingsContent} from './subtitle-settings';
 import {
     AUTO_QUALITY_VALUE,
     SUBTITLES_OFF_VALUE,
@@ -35,15 +36,6 @@ import {
     parseHlsMasterPlaylist,
     resolveActiveQualityValue
 } from '../utils';
-
-const SUBTITLE_SETTING_LABELS: Record<SubtitleSettingsView, string> = {
-    'font-size': 'Font size',
-    'text-color': 'Text color',
-    'text-bg': 'Text background',
-    'edge-style': 'Edge style',
-    'font-family': 'Font family',
-    'position': 'Position',
-};
 
 function isMenuActionKey(key: string): boolean {
     return key === 'Enter' || key === ' ';
@@ -134,28 +126,28 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     const [view, setView] = useState<SettingsView>('root');
     const [subSettingsView, setSubSettingsView] = useState<SubtitleSettingsView | null>(null);
 
-    const savedSettings = useRef(loadPlayerSettings());
+    const initialSettings = loadPlayerSettings();
 
     const [subtitleAppearance, setSubtitleAppearance] = useState<SubtitleAppearance>(
-        savedSettings.current?.subtitleAppearance ?? DEFAULT_SUBTITLE_APPEARANCE
+        initialSettings?.subtitleAppearance ?? DEFAULT_SUBTITLE_APPEARANCE
     );
     const [volumeBoost, setVolumeBoost] = useState<string>(
-        savedSettings.current?.volumeBoost ?? DEFAULT_VOLUME_BOOST
+        initialSettings?.volumeBoost ?? DEFAULT_VOLUME_BOOST
     );
     const [normalization, setNormalization] = useState<string>(
-        savedSettings.current?.normalization ?? DEFAULT_NORMALIZATION
+        initialSettings?.normalization ?? DEFAULT_NORMALIZATION
     );
 
     // Restore volume boost and normalization on mount
     useEffect(() => {
-        if (savedSettings.current?.volumeBoost && savedSettings.current.volumeBoost !== DEFAULT_VOLUME_BOOST) {
-            const option = VOLUME_BOOST_OPTIONS.find((o) => o.value === savedSettings.current!.volumeBoost);
+        if (initialSettings?.volumeBoost && initialSettings.volumeBoost !== DEFAULT_VOLUME_BOOST) {
+            const option = VOLUME_BOOST_OPTIONS.find((o) => o.value === initialSettings!.volumeBoost);
             if (option) applyVolumeBoost(parseFloat(option.css));
         }
-        if (savedSettings.current?.normalization && savedSettings.current.normalization !== DEFAULT_NORMALIZATION) {
-            applyNormalization(savedSettings.current.normalization);
+        if (initialSettings?.normalization && initialSettings.normalization !== DEFAULT_NORMALIZATION) {
+            applyNormalization(initialSettings.normalization);
         }
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Persist settings on change
     useEffect(() => {
@@ -242,49 +234,10 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
         setSubSettingsView(null);
     }
 
-    function renderSubSettingOptions(
-        setting: SubtitleSettingsView,
-        options: readonly {value: string; label: string}[],
-        currentValue: string,
-        onChange: (value: string) => void
-    ): ReactNode {
-        return (
-            <>
-                <div className="media-menu__item media-menu__item--back" role="menuitem" tabIndex={0}
-                     onClick={() => setSubSettingsView(null)}
-                     onKeyDown={(event) => {
-                         if (!isMenuActionKey(event.key)) return;
-                         event.preventDefault();
-                         setSubSettingsView(null);
-                     }}>
-                    <span className="media-settings__label">
-                        <ChevronLeft className="media-icon"/>
-                        <span>{SUBTITLE_SETTING_LABELS[setting]}</span>
-                    </span>
-                </div>
-                <div className="media-menu__group" role="radiogroup" aria-label={SUBTITLE_SETTING_LABELS[setting]}>
-                    {options.map((option) => (
-                        <div key={option.value}
-                             className="media-menu__item"
-                             role="radio"
-                             aria-checked={option.value === currentValue}
-                             tabIndex={0}
-                             onClick={() => onChange(option.value)}
-                             onKeyDown={(event) => {
-                                 if (!isMenuActionKey(event.key)) return;
-                                 event.preventDefault();
-                                 onChange(option.value);
-                             }}>
-                            <span>{option.label}</span>
-                            {option.value === currentValue && (
-                                <Check className="media-icon media-menu__indicator"/>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </>
-        );
-    }
+    const handleSubtitleAppearanceChange = (update: Partial<SubtitleAppearance>) => {
+        setSubtitleAppearance((prev) => ({...prev, ...update}));
+        setSubSettingsView(null);
+    };
 
     return (
         <Menu.Root side="top" align="center" onOpenChange={onOpenChange}>
@@ -425,155 +378,13 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                         </div>
                     </div>
                 )}
-                {view === 'subtitles-settings' && subSettingsView === null && (
-                    <div className="media-menu__submenu">
-                        <div className="media-menu__item media-menu__item--back" role="menuitem" tabIndex={0}
-                             onClick={() => navigateTo('subtitles')}
-                             onKeyDown={(event) => {
-                                 if (!isMenuActionKey(event.key)) return;
-                                 event.preventDefault();
-                                 navigateTo('subtitles');
-                             }}>
-                            <span className="media-settings__label">
-                                <ChevronLeft className="media-icon"/>
-                                <span>Text style</span>
-                            </span>
-                        </div>
-                        <div className="media-menu__group">
-                            <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
-                                 onClick={() => setSubSettingsView('font-size')}
-                                 onKeyDown={(event) => {
-                                     if (!isMenuActionKey(event.key)) return;
-                                     event.preventDefault();
-                                     setSubSettingsView('font-size');
-                                 }}>
-                                <span className="media-settings__label">
-                                    <span>Font size</span>
-                                </span>
-                                <span>{SUBTITLE_FONT_SIZE_OPTIONS.find((o) => o.value === subtitleAppearance.fontSize)?.label ?? 'Medium'}</span>
-                            </div>
-                            <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
-                                 onClick={() => setSubSettingsView('text-color')}
-                                 onKeyDown={(event) => {
-                                     if (!isMenuActionKey(event.key)) return;
-                                     event.preventDefault();
-                                     setSubSettingsView('text-color');
-                                 }}>
-                                <span className="media-settings__label">
-                                    <span>Text color</span>
-                                </span>
-                                <span>{SUBTITLE_COLOR_OPTIONS.find((o) => o.value === subtitleAppearance.textColor)?.label ?? 'White'}</span>
-                            </div>
-                            <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
-                                 onClick={() => setSubSettingsView('text-bg')}
-                                 onKeyDown={(event) => {
-                                     if (!isMenuActionKey(event.key)) return;
-                                     event.preventDefault();
-                                     setSubSettingsView('text-bg');
-                                 }}>
-                                <span className="media-settings__label">
-                                    <span>Text background</span>
-                                </span>
-                                <span>{SUBTITLE_BG_OPTIONS.find((o) => o.value === subtitleAppearance.textBg)?.label ?? 'Black'}</span>
-                            </div>
-                            <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
-                                 onClick={() => setSubSettingsView('edge-style')}
-                                 onKeyDown={(event) => {
-                                     if (!isMenuActionKey(event.key)) return;
-                                     event.preventDefault();
-                                     setSubSettingsView('edge-style');
-                                 }}>
-                                <span className="media-settings__label">
-                                    <span>Edge style</span>
-                                </span>
-                                <span>{SUBTITLE_EDGE_STYLE_OPTIONS.find((o) => o.value === subtitleAppearance.edgeStyle)?.label ?? 'None'}</span>
-                            </div>
-                            <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
-                                 onClick={() => setSubSettingsView('font-family')}
-                                 onKeyDown={(event) => {
-                                     if (!isMenuActionKey(event.key)) return;
-                                     event.preventDefault();
-                                     setSubSettingsView('font-family');
-                                 }}>
-                                <span className="media-settings__label">
-                                    <span>Font family</span>
-                                </span>
-                                <span>{SUBTITLE_FONT_FAMILY_OPTIONS.find((o) => o.value === subtitleAppearance.fontFamily)?.label ?? 'Proportional'}</span>
-                            </div>
-                            <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
-                                 onClick={() => setSubSettingsView('position')}
-                                 onKeyDown={(event) => {
-                                     if (!isMenuActionKey(event.key)) return;
-                                     event.preventDefault();
-                                     setSubSettingsView('position');
-                                 }}>
-                                <span className="media-settings__label">
-                                    <span>Position</span>
-                                </span>
-                                <span>{SUBTITLE_POSITION_OPTIONS.find((o) => o.value === subtitleAppearance.position)?.label ?? 'Default'}</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                {view === 'subtitles-settings' && subSettingsView === 'font-size' && (
-                    <div className="media-menu__submenu">
-                        {renderSubSettingOptions(
-                            'font-size',
-                            SUBTITLE_FONT_SIZE_OPTIONS,
-                            subtitleAppearance.fontSize,
-                            (value) => setSubtitleAppearance((prev) => ({...prev, fontSize: value}))
-                        )}
-                    </div>
-                )}
-                {view === 'subtitles-settings' && subSettingsView === 'text-color' && (
-                    <div className="media-menu__submenu">
-                        {renderSubSettingOptions(
-                            'text-color',
-                            SUBTITLE_COLOR_OPTIONS,
-                            subtitleAppearance.textColor,
-                            (value) => setSubtitleAppearance((prev) => ({...prev, textColor: value}))
-                        )}
-                    </div>
-                )}
-                {view === 'subtitles-settings' && subSettingsView === 'text-bg' && (
-                    <div className="media-menu__submenu">
-                        {renderSubSettingOptions(
-                            'text-bg',
-                            SUBTITLE_BG_OPTIONS,
-                            subtitleAppearance.textBg,
-                            (value) => setSubtitleAppearance((prev) => ({...prev, textBg: value}))
-                        )}
-                    </div>
-                )}
-                {view === 'subtitles-settings' && subSettingsView === 'edge-style' && (
-                    <div className="media-menu__submenu">
-                        {renderSubSettingOptions(
-                            'edge-style',
-                            SUBTITLE_EDGE_STYLE_OPTIONS,
-                            subtitleAppearance.edgeStyle,
-                            (value) => setSubtitleAppearance((prev) => ({...prev, edgeStyle: value}))
-                        )}
-                    </div>
-                )}
-                {view === 'subtitles-settings' && subSettingsView === 'font-family' && (
-                    <div className="media-menu__submenu">
-                        {renderSubSettingOptions(
-                            'font-family',
-                            SUBTITLE_FONT_FAMILY_OPTIONS,
-                            subtitleAppearance.fontFamily,
-                            (value) => setSubtitleAppearance((prev) => ({...prev, fontFamily: value}))
-                        )}
-                    </div>
-                )}
-                {view === 'subtitles-settings' && subSettingsView === 'position' && (
-                    <div className="media-menu__submenu">
-                        {renderSubSettingOptions(
-                            'position',
-                            SUBTITLE_POSITION_OPTIONS,
-                            subtitleAppearance.position,
-                            (value) => setSubtitleAppearance((prev) => ({...prev, position: value}))
-                        )}
-                    </div>
+                {view === 'subtitles-settings' && (
+                    <SubtitleSettingsContent
+                        subSettingsView={subSettingsView}
+                        subtitleAppearance={subtitleAppearance}
+                        onSubtitleAppearanceChange={handleSubtitleAppearanceChange}
+                        onBack={() => navigateTo('subtitles')}
+                    />
                 )}
                 {view === 'audio' && (
                     <div className="media-menu__submenu">

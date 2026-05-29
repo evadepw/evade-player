@@ -36,13 +36,14 @@ export const App: FC = () => {
                         voiceovers: voiceoverOptions,
                     })),
                 }))}
+
                 currentSeason="s1"
                 currentEpisode="s1e1"
                 currentVoiceover="ru"
-                onSeasonChange={(value) => console.log('Season:', value)}
-                onEpisodeChange={(value) => console.log('Episode:', value)}
-                onVoiceoverChange={(value) => console.log('Voiceover:', value)}
-                onSaveState={(state) => console.log('Save state:', state)}
+                onSeasonChange={() => {}}
+                onEpisodeChange={() => {}}
+                onVoiceoverChange={() => {}}
+                onSaveState={() => {}}
             />
         </div>
     );

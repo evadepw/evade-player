@@ -5,7 +5,6 @@ import {Menu, Controls, Tooltip} from '@videojs/react';
 import {Check, ChevronDown} from 'lucide-react';
 import type {SeasonOption} from '../types';
 import {Button} from './button';
-import {SettingsMenu} from "./settings-menu";
 
 export interface ContentSelectorProps {
     seasons?: SeasonOption[];
@@ -64,8 +63,6 @@ export function ContentSelector({
     onEpisodeChange,
     onVoiceoverChange,
 }: ContentSelectorProps): ReactNode | null {
-    if (!seasons) return null;
-
     const currentSeasonData = useMemo(
         () => seasons?.find((s) => s.value === currentSeason),
         [seasons, currentSeason]
@@ -79,6 +76,8 @@ export function ContentSelector({
     );
 
     const voiceovers = currentEpisodeData?.voiceovers;
+
+    if (!seasons) return null;
 
     return (
         <Controls.Root className="media-content-container">

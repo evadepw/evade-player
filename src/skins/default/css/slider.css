@@ -1,0 +1,222 @@
+/* ==========================================================================
+   Slider
+   ========================================================================== */
+
+.media-default-skin .media-slider {
+    position: relative;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    outline: none;
+    border-radius: calc(infinity * 1px);
+
+    &[data-orientation="horizontal"] {
+        width: 100%;
+        min-width: 5rem;
+        height: 2rem;
+    }
+
+    &[data-orientation="vertical"] {
+        width: 2rem;
+        height: 5rem;
+    }
+}
+
+/* Track */
+.media-default-skin .media-slider__track {
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    border-radius: inherit;
+    isolation: isolate;
+
+    &[data-orientation="horizontal"] {
+        width: 100%;
+        height: 0.25rem;
+    }
+
+    &[data-orientation="vertical"] {
+        width: 0.25rem;
+        height: 100%;
+    }
+}
+
+/* Thumb */
+.media-default-skin .media-slider__thumb {
+    position: absolute;
+    z-index: 10;
+    width: 0.625rem;
+    height: 0.625rem;
+    user-select: none;
+    outline: 4px solid transparent;
+    outline-offset: -4px;
+    background-color: currentColor;
+    border-radius: calc(infinity * 1px);
+    box-shadow: 0 0 0 1px var(--media-current-shadow-color-subtle, oklch(0 0 0 / 0.1)),
+    0 1px 3px 0 oklch(0 0 0 / 0.15),
+    0 1px 2px -1px oklch(0 0 0 / 0.15);
+    opacity: 0;
+    translate: -50% -50%;
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+    transition-property: opacity, height, width, outline-offset;
+
+    &[data-orientation="horizontal"] {
+        top: 50%;
+        left: var(--media-slider-fill);
+    }
+
+    &[data-orientation="vertical"] {
+        top: calc(100% - var(--media-slider-fill));
+        left: 50%;
+    }
+
+    &:hover,
+    &:focus {
+        outline-color: oklch(from currentColor l c h / 0.25);
+        outline-offset: 0;
+    }
+
+    &::after {
+        position: absolute;
+        inset: -4px;
+        content: "";
+        border-radius: inherit;
+        box-shadow: 0 0 0 2px oklch(1 0 0);
+        transition-timing-function: ease-out;
+        transition-duration: 150ms;
+        transition-property: opacity, scale;
+    }
+
+    &:not(:focus-visible)::after {
+        opacity: 0;
+        scale: 0.5;
+    }
+}
+
+.media-default-skin .media-slider:active .media-slider__thumb,
+.media-default-skin .media-slider__thumb--persistent {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+.media-default-skin .media-slider:hover .media-slider__thumb,
+.media-default-skin .media-slider__thumb:focus-visible,
+.media-default-skin .media-slider__thumb--persistent {
+    opacity: 1;
+}
+
+/* Shared track fills */
+.media-default-skin .media-slider__buffer,
+.media-default-skin .media-slider__fill {
+    position: absolute;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.media-default-skin .media-slider__buffer[data-orientation="horizontal"],
+.media-default-skin .media-slider__fill[data-orientation="horizontal"] {
+    inset-block: 0;
+    left: 0;
+}
+
+.media-default-skin .media-slider__buffer[data-orientation="vertical"],
+.media-default-skin .media-slider__fill[data-orientation="vertical"] {
+    inset-inline: 0;
+    bottom: 0;
+}
+
+/* Buffer */
+.media-default-skin .media-slider__buffer {
+    background-color: oklch(from currentColor l c h / 0.2);
+    transition-timing-function: ease-out;
+    transition-duration: 0.25s;
+
+    &[data-orientation="horizontal"] {
+        width: var(--media-slider-buffer);
+        transition-property: width;
+    }
+
+    &[data-orientation="vertical"] {
+        height: var(--media-slider-buffer);
+        transition-property: height;
+    }
+}
+
+/* Fill */
+.media-default-skin .media-slider__fill {
+    background-color: currentColor;
+
+    &[data-orientation="horizontal"] {
+        width: var(--media-slider-fill);
+    }
+
+    &[data-orientation="vertical"] {
+        height: var(--media-slider-fill);
+    }
+}
+
+/* Dragging */
+.media-default-skin .media-slider[data-dragging] .media-slider__thumb[data-orientation="horizontal"] {
+    left: var(--media-slider-pointer);
+}
+
+.media-default-skin .media-slider[data-dragging] .media-slider__thumb[data-orientation="vertical"] {
+    top: calc(100% - var(--media-slider-pointer));
+}
+
+.media-default-skin .media-slider[data-dragging] .media-slider__fill[data-orientation="horizontal"] {
+    width: var(--media-slider-pointer);
+}
+
+.media-default-skin .media-slider[data-dragging] .media-slider__fill[data-orientation="vertical"] {
+    height: var(--media-slider-pointer);
+}
+
+/* ==========================================================================
+   Sliders — video skin variant
+   ========================================================================== */
+
+.media-default-skin--video .media-slider__track {
+    background-color: oklch(1 0 0 / 0.2);
+    box-shadow: 0 0 0 1px oklch(0 0 0 / 0.05);
+}
+
+.media-default-skin--video .media-slider__preview {
+    --media-preview-max-width: 11rem;
+    --media-preview-padding: -1.125rem;
+    --media-preview-inset: calc((100cqi - 100%) / 2);
+
+    position: absolute;
+    bottom: calc(100% + 1.2rem);
+    left: clamp(
+            calc(var(--media-preview-max-width) / 2 + var(--media-preview-padding) - var(--media-preview-inset)),
+            var(--media-slider-pointer),
+            calc(100% - var(--media-preview-max-width) / 2 - var(--media-preview-padding) + var(--media-preview-inset))
+    );
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(8px);
+    transform-origin: bottom;
+    scale: 0.8;
+    translate: -50%;
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+    transition-property: scale, opacity, filter;
+
+    & .media-preview__thumbnail {
+        max-width: var(--media-preview-max-width);
+    }
+
+    &:has(.media-preview__thumbnail[data-loading]) {
+        max-height: 6rem;
+    }
+}
+
+.media-default-skin--video .media-slider[data-pointing] .media-slider__preview:has([role="img"]:not([data-hidden])) {
+    opacity: 1;
+    filter: blur(0);
+    scale: 1;
+}

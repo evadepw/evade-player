@@ -1,0 +1,114 @@
+/* ==========================================================================
+   Popups & Tooltips
+   ========================================================================== */
+
+.media-default-skin .media-popover,
+.media-default-skin .media-tooltip {
+    margin: 0;
+    overflow: visible;
+    color: inherit;
+    border: 0;
+    filter: blur(0px);
+    transition-timing-function: var(--media-popup-transition-timing-function);
+    transition-duration: var(--media-popup-transition-duration);
+    transition-property: scale, opacity, filter;
+
+    &[data-starting-style],
+    &[data-ending-style] {
+        opacity: 0;
+        filter: blur(8px);
+        scale: 0.85;
+    }
+
+    &[data-instant] {
+        transition-duration: 0ms;
+    }
+
+    &[data-side="top"] {
+        transform-origin: bottom;
+    }
+
+    &[data-side="bottom"] {
+        transform-origin: top;
+    }
+
+    &[data-side="left"] {
+        transform-origin: right;
+    }
+
+    &[data-side="right"] {
+        transform-origin: left;
+    }
+
+    &::before {
+        position: absolute;
+        pointer-events: inherit;
+        content: "";
+    }
+
+    &[data-side="top"]::before,
+    &[data-side="bottom"]::before {
+        inset-inline: 0;
+        width: fit-content;
+    }
+
+    &[data-side="top"]::before {
+        top: 100%;
+    }
+
+    &[data-side="bottom"]::before {
+        bottom: 100%;
+    }
+
+    &[data-side="left"]::before,
+    &[data-side="right"]::before {
+        inset-block: 0;
+        height: 100%;
+    }
+
+    &[data-side="left"]::before {
+        left: 100%;
+    }
+
+    &[data-side="right"]::before {
+        right: 100%;
+    }
+}
+
+.media-default-skin .media-popover {
+    &[data-side="top"]::before,
+    &[data-side="bottom"]::before {
+        height: var(--media-popover-side-offset);
+    }
+
+    &[data-side="left"]::before,
+    &[data-side="right"]::before {
+        width: var(--media-popover-side-offset);
+    }
+}
+
+.media-default-skin .media-popover--volume {
+    padding: 0.75rem 0;
+    border-radius: calc(infinity * 1px);
+
+    &:has(media-volume-slider[data-availability="unsupported"]) {
+        display: none;
+    }
+}
+
+.media-default-skin .media-tooltip {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    border-radius: calc(infinity * 1px);
+
+    &[data-side="top"]::before,
+    &[data-side="bottom"]::before {
+        height: var(--media-tooltip-side-offset);
+    }
+
+    &[data-side="left"]::before,
+    &[data-side="right"]::before {
+        width: var(--media-tooltip-side-offset);
+    }
+}

@@ -6,7 +6,7 @@ export function savePlaybackState(src: string, state: PlaybackState): void {
     try {
         const key = STORAGE_PREFIX + encodeURIComponent(src);
         localStorage.setItem(key, JSON.stringify(state));
-    } catch {}
+    } catch { /* localStorage may be unavailable */ }
 }
 
 export function loadPlaybackState(src: string): PlaybackState | null {
@@ -21,7 +21,7 @@ export function loadPlaybackState(src: string): PlaybackState | null {
             episode: data.episode,
             voiceover: data.voiceover,
         };
-    } catch {
+    } catch { /* localStorage may be unavailable */
         return null;
     }
 }
@@ -30,5 +30,5 @@ export function clearPlaybackState(src: string): void {
     try {
         const key = STORAGE_PREFIX + encodeURIComponent(src);
         localStorage.removeItem(key);
-    } catch {}
+    } catch { /* localStorage may be unavailable */ }
 }
