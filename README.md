@@ -39,9 +39,6 @@
 
 <p align="center">
   <img width="1000" height="562" alt="EvadePlayer preview" src="https://github.com/user-attachments/assets/8b482fba-ffaa-4229-a311-a211a850bf4b" />
-
-  <br>
-  <em>Player preview — add your screenshot here</em>
 </p>
 
 <br>
