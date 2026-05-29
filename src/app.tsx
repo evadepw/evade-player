@@ -168,7 +168,7 @@ export const App: FC = () => {
                     </p>
                     <div className="hero__actions">
                         <a
-                            href="https://github.com/leo-need-more-coffee/evade-player#readme"
+                            href="https://github.com/Alukkart/evade-player/blob/main/README.md"
                             className="hero__btn hero__btn--primary"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -176,7 +176,7 @@ export const App: FC = () => {
                             <ExternalIcon/> Read the docs
                         </a>
                         <a
-                            href="https://github.com/leo-need-more-coffee/evade-player"
+                            href="https://github.com/alukkart/evade-player"
                             className="hero__btn hero__btn--secondary"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -263,7 +263,7 @@ export const App: FC = () => {
                 <span>evade-player &mdash; MIT License</span>
                 <div className="page-footer__links">
                     <a
-                        href="https://github.com/leo-need-more-coffee/evade-player"
+                        href="https://github.com/Alukkart/evade-player"
                         className="page-footer__link"
                         target="_blank"
                         rel="noopener noreferrer"
