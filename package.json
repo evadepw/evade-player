@@ -1,6 +1,6 @@
 {
   "name": "evade-player",
-  "description": "React/Web Component video player by Alukkart, powered by Video.js — HLS, accessible controls, audio processing, content navigation, and fragment skip support",
+  "description": "React/Web Component video player, powered by Video.js — HLS, accessible controls, audio processing, content navigation, and fragment skip support",
   "private": false,
   "version": "0.2.0",
   "type": "module",

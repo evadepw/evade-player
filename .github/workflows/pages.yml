@@ -17,10 +17,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: github-pages
     env:
-      VITE_VIDEO_SRC: ${{ vars.VITE_VIDEO_SRC }}
-      VITE_POSTER_SRC: ${{ vars.VITE_POSTER_SRC }}
-      VITE_THUMBNAIL_STORYBOARD_SRC: ${{ vars.VITE_THUMBNAIL_STORYBOARD_SRC }}
+      VITE_VIDEO_SRC: ${{ vars.VITE_VIDEO_SRC || secrets.VITE_VIDEO_SRC }}
+      VITE_POSTER_SRC: ${{ vars.VITE_POSTER_SRC || secrets.VITE_POSTER_SRC }}
+      VITE_THUMBNAIL_STORYBOARD_SRC: ${{ vars.VITE_THUMBNAIL_STORYBOARD_SRC || secrets.VITE_THUMBNAIL_STORYBOARD_SRC }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
@@ -28,6 +29,13 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Check demo video configuration
+        run: |
+          if [ -z "$VITE_VIDEO_SRC" ]; then
+            echo "::warning::VITE_VIDEO_SRC is empty. The GitHub Pages demo will show the placeholder instead of a video."
+          else
+            echo "VITE_VIDEO_SRC is configured."
+          fi
       - run: npm run build:pages
       - uses: actions/upload-pages-artifact@v4
         with:
