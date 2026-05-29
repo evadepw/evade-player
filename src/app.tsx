@@ -255,6 +255,7 @@ export const App: FC = () => {
                             <div className="feature-card__icon">{feature.icon}</div>
                             <h3 className="feature-card__title">{feature.title}</h3>
                             <p className="feature-card__desc">{feature.description}</p>
+
                         </div>
                     ))}
                 </section>
