@@ -5,7 +5,7 @@ export const Button = forwardRef<HTMLButtonElement, ComponentProps<'button'>>(fu
         <button
             ref={ref}
             type="button"
-            className={`media-button media-button--subtle media-button--icon ${className ?? ''}`}
+            className={`media-button media-button--subtle ${className ?? ''}`}
             {...props}
         />
     );

@@ -46,10 +46,11 @@ import {Button} from './components/button';
 import {VolumePopover} from './components/volume-popover';
 import {SettingsMenu} from './components/settings-menu';
 import {VolumeProcessor} from './components/volume-processor';
-import type {QualityOption, SeasonOption, VoiceoverOption} from './types';
+import type {PlaybackState, QualityOption, SeasonOption} from './types';
 import {isHlsSource, isRenderProp, isString} from './utils';
 import {Player} from './player';
 import {ContentSelector} from './components/content-selector';
+import {PlaybackStateManager} from './components/playback-state-manager';
 
 import './skin.css';
 
@@ -117,13 +118,14 @@ export interface VideoPlayerProps {
     thumbnailStoryboardSrc?: string;
     errorDescription?: string;
     seasons?: SeasonOption[];
-    voiceovers?: VoiceoverOption[];
     currentSeason?: string;
     currentEpisode?: string;
     currentVoiceover?: string;
     onSeasonChange?: (value: string) => void;
     onEpisodeChange?: (value: string) => void;
     onVoiceoverChange?: (value: string) => void;
+    savedState?: PlaybackState | null;
+    onSaveState?: (state: PlaybackState) => void;
 }
 
 interface StoryboardThumbnailApiItem {
@@ -161,13 +163,14 @@ export function VideoPlayer({
     thumbnailStoryboardSrc,
     errorDescription,
     seasons,
-    voiceovers,
     currentSeason,
     currentEpisode,
     currentVoiceover,
     onSeasonChange,
     onEpisodeChange,
     onVoiceoverChange,
+    savedState,
+    onSaveState,
     ...rest
 }: VideoPlayerProps): ReactNode {
     const isHls = isHlsSource(src);
@@ -273,10 +276,22 @@ export function VideoPlayer({
 
                 <ContentSelector
                     seasons={seasons}
-                    voiceovers={voiceovers}
                     currentSeason={currentSeason}
                     currentEpisode={currentEpisode}
                     currentVoiceover={currentVoiceover}
+                    onSeasonChange={onSeasonChange}
+                    onEpisodeChange={onEpisodeChange}
+                    onVoiceoverChange={onVoiceoverChange}
+                />
+
+                <PlaybackStateManager
+                    src={src}
+                    seasons={seasons}
+                    currentSeason={currentSeason}
+                    currentEpisode={currentEpisode}
+                    currentVoiceover={currentVoiceover}
+                    savedState={savedState}
+                    onSaveState={onSaveState}
                     onSeasonChange={onSeasonChange}
                     onEpisodeChange={onEpisodeChange}
                     onVoiceoverChange={onVoiceoverChange}
@@ -288,7 +303,7 @@ export function VideoPlayer({
                             <Tooltip.Root side="top">
                                 <Tooltip.Trigger
                                     render={
-                                        <PlayButton className="media-button--play" render={<Button/>}>
+                                        <PlayButton className="media-button--icon media-button--play" render={<Button/>}>
                                             <RestartIcon className="media-icon media-icon--restart"/>
                                             <PlayIcon className="media-icon media-icon--play"/>
                                             <PauseIcon className="media-icon media-icon--pause"/>
@@ -325,7 +340,7 @@ export function VideoPlayer({
                             <Tooltip.Root side="top">
                                 <Tooltip.Trigger
                                     render={
-                                        <CastButton className="media-button--cast" render={<Button/>}>
+                                        <CastButton className="media-button--icon media-button--cast" render={<Button/>}>
                                             <CastEnterIcon className="media-icon media-icon--cast-enter"/>
                                             <CastExitIcon className="media-icon media-icon--cast-exit"/>
                                         </CastButton>
@@ -337,7 +352,7 @@ export function VideoPlayer({
                             <Tooltip.Root side="top">
                                 <Tooltip.Trigger
                                     render={
-                                        <FullscreenButton className="media-button--fullscreen" render={<Button/>}>
+                                        <FullscreenButton className="media-button--icon media-button--fullscreen" render={<Button/>}>
                                             <FullscreenEnterIcon className="media-icon media-icon--fullscreen-enter"/>
                                             <FullscreenExitIcon className="media-icon media-icon--fullscreen-exit"/>
                                         </FullscreenButton>

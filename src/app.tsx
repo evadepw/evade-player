@@ -5,41 +5,44 @@ const VIDEO_SRC = import.meta.env.VITE_VIDEO_SRC ?? '';
 const POSTER_SRC = import.meta.env.VITE_POSTER_SRC ?? '';
 const THUMBNAIL_STORYBOARD_SRC = import.meta.env.VITE_THUMBNAIL_STORYBOARD_SRC ?? '';
 
+const voiceoverOptions = [
+    {label: 'Russian', value: 'ru'},
+    {label: 'English', value: 'en'},
+    {label: 'Japanese', value: 'ja'},
+    {label: 'Korean', value: 'ko'},
+    {label: 'Chinese', value: 'zh'},
+    {label: 'French', value: 'fr'},
+    {label: 'German', value: 'de'},
+    {label: 'Spanish', value: 'es'},
+    {label: 'Italian', value: 'it'},
+    {label: 'Portuguese', value: 'pt'},
+    {label: 'Thai', value: 'th'},
+    {label: 'Vietnamese', value: 'vi'},
+];
+
 export const App: FC = () => {
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div style={{ width: '50%', height: '50%', margin: 'auto', marginTop: '15%' }}>
             <VideoPlayer
                 src={VIDEO_SRC}
                 poster={POSTER_SRC || undefined}
                 thumbnailStoryboardSrc={THUMBNAIL_STORYBOARD_SRC || undefined}
-                seasons={[
-                    {
-                        label: 'Season 1',
-                        value: 's1',
-                        episodes: [
-                            { label: 'Episode 1', value: 's1e1' },
-                            { label: 'Episode 2', value: 's1e2' },
-                        ],
-                    },
-                    {
-                        label: 'Season 2',
-                        value: 's2',
-                        episodes: [
-                            { label: 'Episode 1', value: 's2e1' },
-                        ],
-                    },
-                ]}
+                seasons={Array.from({length: 20}, (_, i) => ({
+                    label: `Season ${i + 1}`,
+                    value: `s${i + 1}`,
+                    episodes: Array.from({length: 24}, (_, j) => ({
+                        label: `Episode ${j + 1}`,
+                        value: `s${i + 1}e${j + 1}`,
+                        voiceovers: voiceoverOptions,
+                    })),
+                }))}
                 currentSeason="s1"
                 currentEpisode="s1e1"
+                currentVoiceover="ru"
                 onSeasonChange={(value) => console.log('Season:', value)}
                 onEpisodeChange={(value) => console.log('Episode:', value)}
-                voiceovers={[
-                    { label: 'Russian', value: 'ru' },
-                    { label: 'English', value: 'en' },
-                    { label: 'Japanese', value: 'ja' },
-                ]}
-                currentVoiceover="ru"
                 onVoiceoverChange={(value) => console.log('Voiceover:', value)}
+                onSaveState={(state) => console.log('Save state:', state)}
             />
         </div>
     );

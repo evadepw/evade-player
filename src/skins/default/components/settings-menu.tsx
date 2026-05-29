@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Menu, useMedia, usePlayer} from '@videojs/react';
 import {Captions, Check, ChevronLeft, Gauge, Palette, Settings, Timer, Volume2} from 'lucide-react';
@@ -24,6 +24,7 @@ import {
     type SubtitleSettingsView,
 } from '../types';
 import {applyVolumeBoost, applyNormalization} from './audio-chain';
+import {loadPlayerSettings, savePlayerSettings} from '../utils/settings-persistence';
 import {
     buildQualityMenuOptions,
     getActiveSubtitleValue,
@@ -132,9 +133,34 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     const speedValue = String(playbackRate);
     const [view, setView] = useState<SettingsView>('root');
     const [subSettingsView, setSubSettingsView] = useState<SubtitleSettingsView | null>(null);
-    const [subtitleAppearance, setSubtitleAppearance] = useState<SubtitleAppearance>(DEFAULT_SUBTITLE_APPEARANCE);
-    const [volumeBoost, setVolumeBoost] = useState<string>(DEFAULT_VOLUME_BOOST);
-    const [normalization, setNormalization] = useState<string>(DEFAULT_NORMALIZATION);
+
+    const savedSettings = useRef(loadPlayerSettings());
+
+    const [subtitleAppearance, setSubtitleAppearance] = useState<SubtitleAppearance>(
+        savedSettings.current?.subtitleAppearance ?? DEFAULT_SUBTITLE_APPEARANCE
+    );
+    const [volumeBoost, setVolumeBoost] = useState<string>(
+        savedSettings.current?.volumeBoost ?? DEFAULT_VOLUME_BOOST
+    );
+    const [normalization, setNormalization] = useState<string>(
+        savedSettings.current?.normalization ?? DEFAULT_NORMALIZATION
+    );
+
+    // Restore volume boost and normalization on mount
+    useEffect(() => {
+        if (savedSettings.current?.volumeBoost && savedSettings.current.volumeBoost !== DEFAULT_VOLUME_BOOST) {
+            const option = VOLUME_BOOST_OPTIONS.find((o) => o.value === savedSettings.current!.volumeBoost);
+            if (option) applyVolumeBoost(parseFloat(option.css));
+        }
+        if (savedSettings.current?.normalization && savedSettings.current.normalization !== DEFAULT_NORMALIZATION) {
+            applyNormalization(savedSettings.current.normalization);
+        }
+    }, []);
+
+    // Persist settings on change
+    useEffect(() => {
+        savePlayerSettings({subtitleAppearance, volumeBoost, normalization});
+    }, [subtitleAppearance, volumeBoost, normalization]);
 
     useEffect(() => {
         const container = document.querySelector('.media-default-skin') as HTMLElement | null;
@@ -263,7 +289,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     return (
         <Menu.Root side="top" align="center" onOpenChange={onOpenChange}>
             <Menu.Trigger
-                className="media-button--settings"
+                className="media-button--icon media-button--settings"
                 render={<Button/>}
                 aria-label="Settings"
             >

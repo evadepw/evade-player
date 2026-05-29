@@ -8,6 +8,8 @@ export type {
   SeasonOption,
   EpisodeOption,
   VoiceoverOption,
+  PlaybackState,
+  PlayerSettings,
   SubtitleOption,
   AudioOption,
   SubtitleAppearance,
@@ -29,6 +31,18 @@ export {
   SUBTITLE_FONT_FAMILY_OPTIONS,
   SUBTITLE_POSITION_OPTIONS,
 } from './skins/default/types';
+
+export {
+  savePlaybackState,
+  loadPlaybackState,
+  clearPlaybackState,
+} from './skins/default/utils/playback-state';
+
+export {
+  savePlayerSettings,
+  loadPlayerSettings,
+  clearPlayerSettings,
+} from './skins/default/utils/settings-persistence';
 
 export {
   applyVolumeBoost,

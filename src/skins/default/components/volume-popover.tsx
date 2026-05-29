@@ -7,7 +7,7 @@ export function VolumePopover(): ReactNode {
     const volumeUnsupported = usePlayer((s) => s.volumeAvailability === 'unsupported');
 
     const muteButton = (
-        <MuteButton className="media-button--mute" render={<Button/>}>
+        <MuteButton className="media-button--icon media-button--mute" render={<Button/>}>
             <VolumeOffIcon className="media-icon media-icon--volume-off"/>
             <VolumeLowIcon className="media-icon media-icon--volume-low"/>
             <VolumeHighIcon className="media-icon media-icon--volume-high"/>

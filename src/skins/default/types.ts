@@ -26,11 +26,19 @@ export interface SeasonOption {
 export interface EpisodeOption {
     label: string;
     value: string;
+    voiceovers?: VoiceoverOption[];
 }
 
 export interface VoiceoverOption {
     label: string;
     value: string;
+}
+
+export interface PlaybackState {
+    time: number;
+    season?: string;
+    episode?: string;
+    voiceover?: string;
 }
 
 export const AUTO_QUALITY_VALUE = '__auto__';
@@ -124,6 +132,15 @@ export const NORMALIZATION_OPTIONS: SubtitleSettingOption[] = [
 
 export const DEFAULT_VOLUME_BOOST = '100';
 export const DEFAULT_NORMALIZATION = 'off';
+
+export interface PlayerSettings {
+    volume: number;
+    muted: boolean;
+    playbackRate: number;
+    subtitleAppearance: SubtitleAppearance;
+    volumeBoost: string;
+    normalization: string;
+}
 
 export const DEFAULT_SUBTITLE_APPEARANCE: SubtitleAppearance = {
     fontSize: 'medium',
