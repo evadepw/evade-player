@@ -43,7 +43,6 @@
 
 <br>
 
----
 
 <a name="about"></a>
 ## About
@@ -67,7 +66,6 @@ This is the **frontend** — the player UI. The backend that handles uploading, 
 > [github.com/leo-need-more-coffee/evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform)  
 > Go + ffmpeg + nginx — upload, transcode to HLS, serve with signed URLs
 
----
 
 <a name="quick-start"></a>
 ## Quick Start
@@ -114,7 +112,6 @@ npm run dev
 
 The demo app will be available at `http://localhost:5173`.
 
----
 
 <a name="usage"></a>
 ## Usage
@@ -263,7 +260,6 @@ applyVolumeBoost(2);       // 2x gain
 applyNormalization('light'); // 'off' | 'light' | 'medium' | 'strong'
 ```
 
----
 
 <a name="web-component"></a>
 ## Web Component
@@ -395,7 +391,6 @@ Outputs to `dist/`:
 - `evade-player.thin.js` / `.mjs` — IIFE + ESM, requires `React` / `ReactDOM` on `window`
 - `evade-player.css` — shared styles
 
----
 
 <a name="public-api"></a>
 ## Public API
@@ -503,7 +498,6 @@ Outputs to `dist/`:
 | `FRAGMENT_LABELS_RU` | Russian fragment type labels |
 | `FRAGMENT_LABELS_EN` | English fragment type labels |
 
----
 
 <a name="architecture"></a>
 ## Architecture
@@ -546,7 +540,6 @@ flowchart TD
     D --> RP[ResumePrompt / PlaybackStateManager]
 ```
 
----
 
 <a name="browser-support"></a>
 ## Browser Support
@@ -560,7 +553,6 @@ flowchart TD
 | iOS Safari | ✅ 15+ |
 | Android Chrome | ✅ 90+ |
 
----
 
 <a name="development"></a>
 ## Development
@@ -604,7 +596,6 @@ Host port can be set with `VITE_PORT`:
 VITE_PORT=4173 docker compose up --build
 ```
 
----
 
 <a name="related"></a>
 ## Related
@@ -613,7 +604,6 @@ VITE_PORT=4173 docker compose up --build
 |---|---|
 | [evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform) | Go backend — upload, transcode to HLS, signed URLs |
 
----
 
 <a name="license"></a>
 ## License
