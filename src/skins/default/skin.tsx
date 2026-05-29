@@ -234,7 +234,7 @@ interface StoryboardThumbnailItem {
  *     { type: 'opening', startTime: 0, endTime: 90 },
  *     { type: 'ending', startTime: 1380, endTime: 1440 },
  *   ]}
- *   locale="ru"
+ *   locale="en"
  *   onSeasonChange={(s) => console.log('Season:', s)}
  *   onEpisodeChange={(e) => console.log('Episode:', e)}
  *   onVoiceoverChange={(v) => console.log('Voiceover:', v)}

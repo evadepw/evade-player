@@ -11,6 +11,10 @@ HLS streaming, accessible controls, audio processing, content navigation, and fr
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+<p align="center">
+  <img src="./docs/preview.png" alt="EvadePlayer preview" width="720">
+</p>
+
 ## About
 
 EvadePlayer is a video player built on [Video.js v10](https://videojs.com), available as a **React component** and as a **framework-agnostic Web Component** (`<evade-player>`).

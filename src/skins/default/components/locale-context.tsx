@@ -19,7 +19,7 @@ const LOCALE_STRINGS: Record<Locale, LocaleStrings> = {
 const LocaleContext = createContext<LocaleContextValue>({locale: 'ru', strings: LOCALE_STRINGS.ru});
 
 export function LocaleProvider({locale, children}: {locale?: Locale; children: ReactNode}): ReactNode {
-    const resolved: Locale = locale ?? 'ru';
+    const resolved: Locale = locale ?? 'en';
     return (
         <LocaleContext.Provider value={{locale: resolved, strings: LOCALE_STRINGS[resolved]}}>
             {children}
