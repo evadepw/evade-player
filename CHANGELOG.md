@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.3] — 2026-05-29
+
+### Fixed
+- Standalone work
+
 ## [0.1.2] — 2026-05-29
 
 ### Added
@@ -57,3 +62,8 @@
 - Docker development environment
 - GitHub Actions workflow for npm publishing
 - MIT License
+
+[0.1.3]: https://github.com/Alukkart/evade-player/releases/tag/0.1.3
+[0.1.2]: https://github.com/Alukkart/evade-player/releases/tag/0.1.2
+[0.1.1]: https://github.com/Alukkart/evade-player/releases/tag/0.1.1
+[0.1.0]: https://github.com/Alukkart/evade-player/releases/tag/0.1.0

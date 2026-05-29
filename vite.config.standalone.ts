@@ -7,6 +7,9 @@ export default defineConfig({
         react(),
     ],
     publicDir: false,
+    define: {
+        'process.env.NODE_ENV': JSON.stringify('production'),
+    },
     build: {
         emptyOutDir: false,
         lib: {

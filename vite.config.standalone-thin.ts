@@ -9,6 +9,9 @@ export default defineConfig({
         }),
     ],
     publicDir: false,
+    define: {
+        'process.env.NODE_ENV': JSON.stringify('production'),
+    },
     build: {
         emptyOutDir: false,
         lib: {

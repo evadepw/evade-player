@@ -9,6 +9,14 @@ import {ResumePrompt} from './resume-prompt';
 
 const SAVE_INTERVAL = 5000;
 
+function isValidVolume(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1;
+}
+
+function isValidPlaybackRate(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value > 0;
+}
+
 export interface PlaybackStateManagerProps {
     src: string;
     seasons?: SeasonOption[];
@@ -133,9 +141,11 @@ export function PlaybackStateManager({
         const settings = loadPlayerSettings();
         if (!settings) return;
 
-        if (settings.volume !== volume) store.setVolume(settings.volume);
-        if (settings.muted !== muted) store.toggleMuted();
-        if (settings.playbackRate !== playbackRate) store.setPlaybackRate(settings.playbackRate);
+        if (isValidVolume(settings.volume) && settings.volume !== volume) store.setVolume(settings.volume);
+        if (typeof settings.muted === 'boolean' && settings.muted !== muted) store.toggleMuted();
+        if (isValidPlaybackRate(settings.playbackRate) && settings.playbackRate !== playbackRate) {
+            store.setPlaybackRate(settings.playbackRate);
+        }
     }, [duration, store, volume, muted, playbackRate]);
 
     // Save volume/muted/playbackRate on change
