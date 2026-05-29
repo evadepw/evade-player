@@ -5,6 +5,7 @@ import {Menu, Controls, Tooltip} from '@videojs/react';
 import {Check, ChevronDown} from 'lucide-react';
 import type {SeasonOption} from '../types';
 import {Button} from './button';
+import {useLocaleStrings} from './locale-context';
 
 export interface ContentSelectorProps {
     seasons?: SeasonOption[];
@@ -63,6 +64,7 @@ export function ContentSelector({
     onEpisodeChange,
     onVoiceoverChange,
 }: ContentSelectorProps): ReactNode | null {
+    const t = useLocaleStrings();
     const currentSeasonData = useMemo(
         () => seasons?.find((s) => s.value === currentSeason),
         [seasons, currentSeason]
@@ -84,13 +86,13 @@ export function ContentSelector({
             <Controls.Group className="media-surface media-content-controls">
                 <Tooltip.Provider>
                     {seasons && onSeasonChange && (
-                        <Selector options={seasons} currentValue={currentSeason} onChange={onSeasonChange} placeholder="Season"/>
+                        <Selector options={seasons} currentValue={currentSeason} onChange={onSeasonChange} placeholder={t.selectorSeason}/>
                     )}
                     {episodes && episodes.length > 0 && onEpisodeChange && (
-                        <Selector options={episodes} currentValue={currentEpisode} onChange={onEpisodeChange} placeholder="Episode"/>
+                        <Selector options={episodes} currentValue={currentEpisode} onChange={onEpisodeChange} placeholder={t.selectorEpisode}/>
                     )}
                     {voiceovers && onVoiceoverChange && (
-                        <Selector options={voiceovers} currentValue={currentVoiceover} onChange={onVoiceoverChange} placeholder="Voiceover"/>
+                        <Selector options={voiceovers} currentValue={currentVoiceover} onChange={onVoiceoverChange} placeholder={t.selectorVoiceover}/>
                     )}
                 </Tooltip.Provider>
             </Controls.Group>

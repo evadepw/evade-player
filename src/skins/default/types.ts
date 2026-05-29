@@ -140,6 +140,7 @@ export interface PlayerSettings {
     subtitleAppearance: SubtitleAppearance;
     volumeBoost: string;
     normalization: string;
+    fragmentSettings: FragmentSettings;
 }
 
 export const DEFAULT_SUBTITLE_APPEARANCE: SubtitleAppearance = {
@@ -151,4 +152,34 @@ export const DEFAULT_SUBTITLE_APPEARANCE: SubtitleAppearance = {
     position: 'default',
 };
 
-export type SettingsView = 'root' | 'quality' | 'subtitles' | 'subtitles-settings' | 'audio' | 'season' | 'episode' | 'speed';
+export type FragmentType = 'opening' | 'ending' | 'preview' | 'compilation';
+
+export interface Fragment {
+    type: FragmentType;
+    startTime: number;
+    endTime: number;
+    label?: string;
+}
+
+export interface FragmentSettings {
+    autoSkipOpening: boolean;
+    autoSkipEnding: boolean;
+    autoSkipPreview: boolean;
+    autoSkipCompilation: boolean;
+}
+
+export const DEFAULT_FRAGMENT_SETTINGS: FragmentSettings = {
+    autoSkipOpening: false,
+    autoSkipEnding: false,
+    autoSkipPreview: false,
+    autoSkipCompilation: false,
+};
+
+export const FRAGMENT_COLORS: Record<FragmentType, string> = {
+    opening: '#06b6d4',
+    ending: '#a855f7',
+    preview: '#22c55e',
+    compilation: '#f59e0b',
+};
+
+export type SettingsView = 'root' | 'quality' | 'subtitles' | 'subtitles-settings' | 'audio' | 'season' | 'episode' | 'speed' | 'fragments';

@@ -1,0 +1,125 @@
+/* ==========================================================================
+   Fragment markers on Timeline
+   ========================================================================== */
+
+.media-default-skin .media-fragment-markers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.media-default-skin .media-fragment-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Skip Fragment Button
+   ========================================================================== */
+
+.media-default-skin .media-skip-fragment {
+    position: absolute;
+    right: 1rem;
+    bottom: 4.5rem;
+    z-index: 20;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    color: oklch(1 0 0);
+    background: oklch(0 0 0 / 0.7);
+    border-radius: calc(infinity * 1px);
+    backdrop-filter: blur(8px);
+    animation: media-skip-fragment-in 200ms ease-out both;
+}
+
+@keyframes media-skip-fragment-in {
+    from {
+        opacity: 0;
+        scale: 0.9;
+        translate: 0 0.5rem;
+    }
+}
+
+.media-default-skin .media-skip-fragment__label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.media-default-skin .media-skip-fragment__button {
+    width: 2rem;
+    height: 2rem;
+    color: oklch(1 0 0);
+    background: oklch(1 0 0 / 0.15);
+    border-radius: calc(infinity * 1px);
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 150ms ease-out;
+}
+
+.media-default-skin .media-skip-fragment__button:hover,
+.media-default-skin .media-skip-fragment__button:focus-visible {
+    background: oklch(1 0 0 / 0.25);
+}
+
+.media-default-skin .media-skip-fragment__button .media-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* ==========================================================================
+   Fragment Settings Toggle
+   ========================================================================== */
+
+.media-default-skin .media-settings__toggle {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.media-default-skin .media-settings__toggle-track {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 1.25rem;
+    background: oklch(1 0 0 / 0.2);
+    border-radius: calc(infinity * 1px);
+    transition: background-color 150ms ease-out;
+}
+
+.media-default-skin .media-settings__toggle-track[data-checked] {
+    background: oklch(0.6 0.2 240);
+}
+
+.media-default-skin .media-settings__toggle-thumb {
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 1rem;
+    height: 1rem;
+    background: oklch(1 0 0);
+    border-radius: 50%;
+    transition: translate 150ms ease-out;
+}
+
+.media-default-skin .media-settings__toggle-track[data-checked] .media-settings__toggle-thumb {
+    translate: 1rem 0;
+}
+
+.media-default-skin .media-fragment-dot {
+    display: inline-block;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}

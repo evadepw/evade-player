@@ -16,6 +16,9 @@ export type {
   SubtitleSettingOption,
   SubtitleSettingsView,
   SettingsView,
+  Fragment,
+  FragmentType,
+  FragmentSettings,
 } from './skins/default/types';
 
 export {
@@ -30,6 +33,8 @@ export {
   SUBTITLE_EDGE_STYLE_OPTIONS,
   SUBTITLE_FONT_FAMILY_OPTIONS,
   SUBTITLE_POSITION_OPTIONS,
+  DEFAULT_FRAGMENT_SETTINGS,
+  FRAGMENT_COLORS,
 } from './skins/default/types';
 
 export {
@@ -52,3 +57,11 @@ export {
   getAudioChainDebugInfo,
 } from './skins/default/components/audio-chain';
 export type { AudioChainDebugInfo } from './skins/default/components/audio-chain';
+
+export { LocaleProvider } from './skins/default/components/locale-context';
+export {
+  getFragmentLabel,
+  FRAGMENT_LABELS_RU,
+  FRAGMENT_LABELS_EN,
+} from './skins/default/locales';
+export type { Locale } from './skins/default/locales';

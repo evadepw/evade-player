@@ -9,15 +9,15 @@ import {
     SUBTITLE_FONT_FAMILY_OPTIONS,
     SUBTITLE_POSITION_OPTIONS,
 } from '../types';
-
-const SUBTITLE_SETTING_LABELS: Record<SubtitleSettingsView, string> = {
-    'font-size': 'Font size',
-    'text-color': 'Text color',
-    'text-bg': 'Text background',
-    'edge-style': 'Edge style',
-    'font-family': 'Font family',
-    'position': 'Position',
-};
+import {useLocaleStrings} from './locale-context';
+import {
+    getFontSizeLabel,
+    getColorLabel,
+    getBgLabel,
+    getEdgeStyleLabel,
+    getFontFamilyLabel,
+    getPositionLabel,
+} from '../locales';
 
 function isMenuActionKey(key: string): boolean {
     return key === 'Enter' || key === ' ';
@@ -29,6 +29,7 @@ function renderSubSettingOptions(
     currentValue: string,
     onChange: (value: string) => void,
     onBack: () => void,
+    t: ReturnType<typeof useLocaleStrings>,
 ): ReactNode {
     return (
         <>
@@ -57,7 +58,7 @@ function renderSubSettingOptions(
                              event.preventDefault();
                              onChange(option.value);
                          }}>
-                        <span>{option.label}</span>
+                        <span>{getOptionLabel(setting, option.value, t)}</span>
                         {option.value === currentValue && (
                             <Check className="media-icon media-menu__indicator"/>
                         )}
@@ -66,6 +67,44 @@ function renderSubSettingOptions(
             </div>
         </>
     );
+}
+
+const SUBTITLE_SETTING_LABELS: Record<SubtitleSettingsView, string> = {
+    'font-size': 'subtitleFontSize',
+    'text-color': 'subtitleTextColor',
+    'text-bg': 'subtitleTextBg',
+    'edge-style': 'subtitleEdgeStyle',
+    'font-family': 'subtitleFontFamily',
+    'position': 'subtitlePosition',
+};
+
+const SUBTITLE_SETTING_VIEWS: {key: SubtitleSettingsView; options: readonly SubtitleSettingOption[]; prop: keyof SubtitleAppearance}[] = [
+    {key: 'font-size', options: SUBTITLE_FONT_SIZE_OPTIONS, prop: 'fontSize'},
+    {key: 'text-color', options: SUBTITLE_COLOR_OPTIONS, prop: 'textColor'},
+    {key: 'text-bg', options: SUBTITLE_BG_OPTIONS, prop: 'textBg'},
+    {key: 'edge-style', options: SUBTITLE_EDGE_STYLE_OPTIONS, prop: 'edgeStyle'},
+    {key: 'font-family', options: SUBTITLE_FONT_FAMILY_OPTIONS, prop: 'fontFamily'},
+    {key: 'position', options: SUBTITLE_POSITION_OPTIONS, prop: 'position'},
+];
+
+function getOptionLabel(setting: SubtitleSettingsView, value: string, t: ReturnType<typeof useLocaleStrings>): string {
+    switch (setting) {
+        case 'font-size': return getFontSizeLabel(value, t);
+        case 'text-color': return getColorLabel(value, t);
+        case 'text-bg': return getBgLabel(value, t);
+        case 'edge-style': return getEdgeStyleLabel(value, t);
+        case 'font-family': return getFontFamilyLabel(value, t);
+        case 'position': return getPositionLabel(value, t);
+    }
+}
+
+function getSettingLabel(setting: SubtitleSettingsView, t: ReturnType<typeof useLocaleStrings>): string {
+    const key = SUBTITLE_SETTING_LABELS[setting];
+    return (t as unknown as Record<string, string>)[key] ?? setting;
+}
+
+function getCurrentOptionLabel(setting: SubtitleSettingsView, options: readonly SubtitleSettingOption[], value: string, t: ReturnType<typeof useLocaleStrings>): string {
+    return options.find((o) => o.value === value)?.label ?? getOptionLabel(setting, value, t) ?? t.commonDefault;
 }
 
 interface SubtitleSettingsContentProps {
@@ -81,6 +120,8 @@ export function SubtitleSettingsContent({
     onSubtitleAppearanceChange,
     onBack,
 }: SubtitleSettingsContentProps): ReactNode {
+    const t = useLocaleStrings();
+
     if (subSettingsView === null) {
         return (
             <div className="media-menu__submenu">
@@ -93,23 +134,16 @@ export function SubtitleSettingsContent({
                      }}>
                     <span className="media-settings__label">
                         <ChevronLeft className="media-icon"/>
-                        <span>Text style</span>
+                        <span>{t.settingsTextStyle}</span>
                     </span>
                 </div>
                 <div className="media-menu__group">
-                    {([
-                        ['font-size', SUBTITLE_FONT_SIZE_OPTIONS, subtitleAppearance.fontSize] as const,
-                        ['text-color', SUBTITLE_COLOR_OPTIONS, subtitleAppearance.textColor] as const,
-                        ['text-bg', SUBTITLE_BG_OPTIONS, subtitleAppearance.textBg] as const,
-                        ['edge-style', SUBTITLE_EDGE_STYLE_OPTIONS, subtitleAppearance.edgeStyle] as const,
-                        ['font-family', SUBTITLE_FONT_FAMILY_OPTIONS, subtitleAppearance.fontFamily] as const,
-                        ['position', SUBTITLE_POSITION_OPTIONS, subtitleAppearance.position] as const,
-                    ]).map(([key, options, value]) => (
+                    {SUBTITLE_SETTING_VIEWS.map(({key, options, prop}) => (
                         <SubSettingEntry
                             key={key}
-                            label={SUBTITLE_SETTING_LABELS[key]}
-                            valueLabel={options.find((o) => o.value === value)?.label ?? 'Default'}
-                            onClick={() => onSubtitleAppearanceChange({[key]: value})}
+                            label={getSettingLabel(key, t)}
+                            valueLabel={getCurrentOptionLabel(key, options, subtitleAppearance[prop], t)}
+                            onClick={() => onSubtitleAppearanceChange({[prop]: subtitleAppearance[prop]})}
                         />
                     ))}
                 </div>
@@ -117,36 +151,20 @@ export function SubtitleSettingsContent({
         );
     }
 
-    const optionsMap: Record<SubtitleSettingsView, readonly SubtitleSettingOption[]> = {
-        'font-size': SUBTITLE_FONT_SIZE_OPTIONS,
-        'text-color': SUBTITLE_COLOR_OPTIONS,
-        'text-bg': SUBTITLE_BG_OPTIONS,
-        'edge-style': SUBTITLE_EDGE_STYLE_OPTIONS,
-        'font-family': SUBTITLE_FONT_FAMILY_OPTIONS,
-        'position': SUBTITLE_POSITION_OPTIONS,
-    };
+    const view = SUBTITLE_SETTING_VIEWS.find((v) => v.key === subSettingsView);
+    if (!view) return null;
 
-    const updateMap: Record<SubtitleSettingsView, keyof SubtitleAppearance> = {
-        'font-size': 'fontSize',
-        'text-color': 'textColor',
-        'text-bg': 'textBg',
-        'edge-style': 'edgeStyle',
-        'font-family': 'fontFamily',
-        'position': 'position',
-    };
-
-    const options = optionsMap[subSettingsView];
-    const prop = updateMap[subSettingsView];
-    const currentValue = subtitleAppearance[prop];
+    const currentValue = subtitleAppearance[view.prop];
 
     return (
         <div className="media-menu__submenu">
             {renderSubSettingOptions(
                 subSettingsView,
-                options,
+                view.options,
                 currentValue,
-                (value) => onSubtitleAppearanceChange({[prop]: value}),
+                (value) => onSubtitleAppearanceChange({[view.prop]: value}),
                 () => onSubtitleAppearanceChange({}),
+                t,
             )}
         </div>
     );

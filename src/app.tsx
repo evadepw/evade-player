@@ -36,7 +36,11 @@ export const App: FC = () => {
                         voiceovers: voiceoverOptions,
                     })),
                 }))}
-
+                fragments={[
+                    { type: 'opening', startTime: 0, endTime: 90 },
+                    { type: 'ending', startTime: 584, endTime: 634 },
+                    { type: 'preview', startTime: 140, endTime: 150 },
+                ]}
                 currentSeason="s1"
                 currentEpisode="s1e1"
                 currentVoiceover="ru"
@@ -44,6 +48,7 @@ export const App: FC = () => {
                 onEpisodeChange={() => {}}
                 onVoiceoverChange={() => {}}
                 onSaveState={() => {}}
+                locale="ru"
             />
         </div>
     );

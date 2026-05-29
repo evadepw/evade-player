@@ -3,6 +3,7 @@
 import {type ReactNode} from 'react';
 import {X} from 'lucide-react';
 import type {PlaybackState} from '../types';
+import {useLocaleStrings} from './locale-context';
 
 function formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60);
@@ -18,15 +19,16 @@ export interface ResumePromptProps {
 }
 
 export function ResumePrompt({state, subtitle, onResume, onDismiss}: ResumePromptProps): ReactNode {
+    const t = useLocaleStrings();
     return (
         <div className="media-resume-prompt">
             <div className="media-surface media-resume-prompt__dialog">
-                <button className="media-resume-prompt__close" onClick={onDismiss} aria-label="Dismiss">
+                <button className="media-resume-prompt__close" onClick={onDismiss} aria-label={t.resumeDismiss}>
                     <X className="media-icon"/>
                 </button>
                 <div className="media-resume-prompt__content">
                     <p className="media-resume-prompt__text">
-                        Continue from {formatTime(state.time)}?
+                        {t.resumeContinueFrom.replace('{time}', formatTime(state.time))}
                     </p>
                     {subtitle && (
                         <p className="media-resume-prompt__subtitle">{subtitle}</p>
@@ -34,7 +36,7 @@ export function ResumePrompt({state, subtitle, onResume, onDismiss}: ResumePromp
                 </div>
                 <div className="media-resume-prompt__actions">
                     <button className="media-button media-button--primary" onClick={onResume}>
-                        Resume
+                        {t.resumeResume}
                     </button>
                 </div>
             </div>

@@ -46,11 +46,15 @@ import {Button} from './components/button';
 import {VolumePopover} from './components/volume-popover';
 import {SettingsMenu} from './components/settings-menu';
 import {VolumeProcessor} from './components/volume-processor';
-import type {PlaybackState, QualityOption, SeasonOption} from './types';
+import type {Fragment, FragmentSettings, PlaybackState, QualityOption, SeasonOption} from './types';
 import {isHlsSource, isRenderProp, isString} from './utils';
 import {Player} from './player';
 import {ContentSelector} from './components/content-selector';
 import {PlaybackStateManager} from './components/playback-state-manager';
+import {FragmentMarkers, SkipFragmentButton} from './components/fragment-controls';
+import {FragmentSettingsProvider} from './components/fragment-settings-context';
+import {type Locale} from './locales';
+import {LocaleProvider, useLocaleStrings} from './components/locale-context';
 
 import './skin.css';
 
@@ -109,6 +113,33 @@ function CaptionLineOffset(): null {
     return null;
 }
 
+function LocalizedErrorDialog({errorDescription}: {errorDescription?: string}): ReactNode {
+    const t = useLocaleStrings();
+    return (
+        <ErrorDialog.Root>
+            <ErrorDialog.Popup className="media-error">
+                <div className="media-error__dialog media-surface">
+                    <div className="media-error__content">
+                        <ErrorDialog.Title className="media-error__title">{t.errorTitle}</ErrorDialog.Title>
+                        <ErrorDialog.Description className="media-error__description">
+                            {errorDescription}
+                        </ErrorDialog.Description>
+                    </div>
+                    <div className="media-error__actions">
+                        <ErrorDialog.Close className="media-button media-button--primary">{t.commonOk}</ErrorDialog.Close>
+                    </div>
+                </div>
+            </ErrorDialog.Popup>
+        </ErrorDialog.Root>
+    );
+}
+
+function extractSeasonFromEpisode(episode?: string): string | undefined {
+    if (!episode) return undefined;
+    const match = episode.match(/^(s\d+)/i);
+    return match?.[1]?.toLowerCase();
+}
+
 export interface VideoPlayerProps {
     src: string;
     qualities?: QualityOption[];
@@ -126,6 +157,9 @@ export interface VideoPlayerProps {
     onVoiceoverChange?: (value: string) => void;
     savedState?: PlaybackState | null;
     onSaveState?: (state: PlaybackState) => void;
+    fragments?: Fragment[];
+    fragmentSettings?: Partial<FragmentSettings>;
+    locale?: Locale;
 }
 
 interface StoryboardThumbnailApiItem {
@@ -171,8 +205,12 @@ export function VideoPlayer({
     onVoiceoverChange,
     savedState,
     onSaveState,
+    fragments,
+    fragmentSettings: fragmentSettingsProp,
+    locale,
     ...rest
 }: VideoPlayerProps): ReactNode {
+    const resolvedSeason: string | undefined = currentSeason ?? extractSeasonFromEpisode(currentEpisode);
     const isHls = isHlsSource(src);
     const [storyboardItems, setStoryboardItems] = useState<StoryboardThumbnailApiItem[] | null>(null);
 
@@ -226,6 +264,8 @@ export function VideoPlayer({
 
     return (
         <Player.Provider>
+            <LocaleProvider locale={locale}>
+            <FragmentSettingsProvider initialSettings={fragmentSettingsProp}>
             <CaptionLineOffset/>
             <Container className={`media-default-skin media-default-skin--video ${className ?? ''}`} {...rest}>
                 <VolumeProcessor/>
@@ -258,25 +298,11 @@ export function VideoPlayer({
                     )}
                 />
 
-                <ErrorDialog.Root>
-                    <ErrorDialog.Popup className="media-error">
-                        <div className="media-error__dialog media-surface">
-                            <div className="media-error__content">
-                                <ErrorDialog.Title className="media-error__title">Something went wrong.</ErrorDialog.Title>
-                                <ErrorDialog.Description className="media-error__description">
-                                    {errorDescription}
-                                </ErrorDialog.Description>
-                            </div>
-                            <div className="media-error__actions">
-                                <ErrorDialog.Close className="media-button media-button--primary">OK</ErrorDialog.Close>
-                            </div>
-                        </div>
-                    </ErrorDialog.Popup>
-                </ErrorDialog.Root>
+                <LocalizedErrorDialog errorDescription={errorDescription}/>
 
                 <ContentSelector
                     seasons={seasons}
-                    currentSeason={currentSeason}
+                    currentSeason={resolvedSeason}
                     currentEpisode={currentEpisode}
                     currentVoiceover={currentVoiceover}
                     onSeasonChange={onSeasonChange}
@@ -287,7 +313,7 @@ export function VideoPlayer({
                 <PlaybackStateManager
                     src={src}
                     seasons={seasons}
-                    currentSeason={currentSeason}
+                    currentSeason={resolvedSeason}
                     currentEpisode={currentEpisode}
                     currentVoiceover={currentVoiceover}
                     savedState={savedState}
@@ -320,6 +346,7 @@ export function VideoPlayer({
                                 <TimeSlider.Track className="media-slider__track">
                                     <TimeSlider.Fill className="media-slider__fill"/>
                                     <TimeSlider.Buffer className="media-slider__buffer"/>
+                                    {fragments && <FragmentMarkers fragments={fragments}/>}
                                 </TimeSlider.Track>
                                 <TimeSlider.Thumb className="media-slider__thumb"/>
 
@@ -333,9 +360,9 @@ export function VideoPlayer({
                         </div>
 
                         <div className="media-button-group">
-                            <SettingsMenu qualities={qualities} masterSource={src}/>
-
                             <VolumePopover/>
+
+                            <SettingsMenu qualities={qualities} masterSource={src}/>
 
                             <Tooltip.Root side="top">
                                 <Tooltip.Trigger
@@ -363,6 +390,10 @@ export function VideoPlayer({
                         </div>
                     </Tooltip.Provider>
                 </Controls.Root>
+
+                {fragments && fragments.length > 0 && (
+                    <SkipFragmentButton fragments={fragments}/>
+                )}
 
                 <div className="media-overlay"/>
 
@@ -431,7 +462,8 @@ export function VideoPlayer({
                     </StatusIndicator.Root>
                 </div>
             </Container>
-
+            </FragmentSettingsProvider>
+            </LocaleProvider>
         </Player.Provider>
     );
 }

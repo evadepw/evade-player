@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 import {useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Menu, useMedia, usePlayer} from '@videojs/react';
-import {Captions, Check, ChevronLeft, Gauge, Palette, Settings, Timer, Volume2} from 'lucide-react';
+import {Captions, Check, ChevronLeft, Gauge, Settings, Timer, Volume2} from 'lucide-react';
 import {Button} from './button';
 import {SubtitleSettingsContent} from './subtitle-settings';
 import {
@@ -19,6 +19,9 @@ import {
     SUBTITLE_FONT_SIZE_OPTIONS,
     SUBTITLE_POSITION_OPTIONS,
     VOLUME_BOOST_OPTIONS,
+    FRAGMENT_COLORS,
+    type FragmentSettings,
+    type FragmentType,
     type QualityOption,
     type SettingsView,
     type SubtitleAppearance,
@@ -26,6 +29,9 @@ import {
 } from '../types';
 import {applyVolumeBoost, applyNormalization} from './audio-chain';
 import {loadPlayerSettings, savePlayerSettings} from '../utils/settings-persistence';
+import {useFragmentSettings} from './fragment-settings-context';
+import {getFragmentLabel, getVolumeBoostLabel, getNormalizationLabel} from '../locales';
+import {useLocale, useLocaleStrings} from './locale-context';
 import {
     buildQualityMenuOptions,
     getActiveSubtitleValue,
@@ -173,6 +179,10 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
         container.style.setProperty('--vjs-subtitle-offset', positionCss);
     }, [subtitleAppearance]);
 
+    const t = useLocaleStrings();
+    const {locale} = useLocale();
+    const {settings: fragmentSettings, updateSettings} = useFragmentSettings();
+
     if (qualityOptions.length < 2 && speedOptions.length < 2 && subtitleOptions.length < 2) return null;
 
     const qualityValue = resolveActiveQualityValue(qualityOptions, source, masterSource);
@@ -244,7 +254,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
             <Menu.Trigger
                 className="media-button--icon media-button--settings"
                 render={<Button/>}
-                aria-label="Settings"
+                aria-label={t.settingsTrigger}
             >
                 <Settings className="media-icon"/>
             </Menu.Trigger>
@@ -261,9 +271,9 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                  }}>
                                 <span className="media-settings__label">
                                     <Gauge className="media-icon"/>
-                                    <span>Quality</span>
+                                    <span>{t.settingsQuality}</span>
                                 </span>
-                                <span>{qualityOptions.find((option) => option.value === qualityValue)?.label ?? 'Auto'}</span>
+                                <span>{qualityOptions.find((option) => option.value === qualityValue)?.label ?? t.commonAuto}</span>
                             </div>
                         )}
                         {subtitleOptions.length > 1 && (
@@ -276,9 +286,9 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                  }}>
                                 <span className="media-settings__label">
                                     <Captions className="media-icon"/>
-                                    <span>Subtitles</span>
+                                    <span>{t.settingsSubtitles}</span>
                                 </span>
-                                <span>{subtitleOptions.find((option) => option.value === subtitleValue)?.label ?? 'Off'}</span>
+                                <span>{subtitleOptions.find((option) => option.value === subtitleValue)?.label ?? t.subtitlesOff}</span>
                             </div>
                         )}
                         {speedOptions.length > 1 && (
@@ -291,11 +301,24 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                  }}>
                                 <span className="media-settings__label">
                                     <Timer className="media-icon"/>
-                                    <span>Speed</span>
+                                    <span>{t.settingsSpeed}</span>
                                 </span>
                                 <span>{speedValue}x</span>
                             </div>
                         )}
+                        <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('fragments')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('fragments');
+                             }}>
+                            <span className="media-settings__label">
+                                <Settings className="media-icon"/>
+                                <span>{t.settingsFragments}</span>
+                            </span>
+                            <span>{fragmentSettings ? t.commonOn : t.commonOff}</span>
+                        </div>
                         <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
                              onClick={() => navigateTo('audio')}
                              onKeyDown={(event) => {
@@ -305,7 +328,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                              }}>
                             <span className="media-settings__label">
                                 <Volume2 className="media-icon"/>
-                                <span>Audio</span>
+                                <span>{t.settingsAudio}</span>
                             </span>
                             <span>{volumeBoost}%</span>
                         </div>
@@ -322,11 +345,11 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                              }}>
                             <span className="media-settings__label">
                                 <ChevronLeft className="media-icon"/>
-                                <span>Quality</span>
+                                <span>{t.settingsQuality}</span>
                             </span>
                         </div>
                         <Menu.RadioGroup className="media-menu__group" value={qualityValue} onValueChange={onQualityChange}
-                                         label="Video quality">
+                                         label={t.settingsVideoQuality}>
                             {qualityOptions.map((option) => (
                                 <Menu.RadioItem key={option.value} className="media-menu__item" value={option.value}>
                                     <span>{option.label}</span>
@@ -349,11 +372,11 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                              }}>
                             <span className="media-settings__label">
                                 <ChevronLeft className="media-icon"/>
-                                <span>Subtitles</span>
+                                <span>{t.settingsSubtitles}</span>
                             </span>
                         </div>
                         <Menu.RadioGroup className="media-menu__group" value={subtitleValue}
-                                         onValueChange={onSubtitleChange} label="Subtitles">
+                                         onValueChange={onSubtitleChange} label={t.settingsSubtitles}>
                             {subtitleOptions.map((option) => (
                                 <Menu.RadioItem key={option.value} className="media-menu__item" value={option.value}>
                                     <span>{option.label}</span>
@@ -372,8 +395,8 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                  navigateTo('subtitles-settings');
                              }}>
                             <span className="media-settings__label">
-                                <Palette className="media-icon"/>
-                                <span>Text style</span>
+                                <ChevronLeft className="media-icon"/>
+                                <span>{t.settingsTextStyle}</span>
                             </span>
                         </div>
                     </div>
@@ -397,12 +420,12 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                              }}>
                             <span className="media-settings__label">
                                 <ChevronLeft className="media-icon"/>
-                                <span>Audio</span>
+                                <span>{t.settingsAudio}</span>
                             </span>
                         </div>
                         <div className="media-menu__group">
                             <div className="media-menu__item media-menu__item--subheader" role="presentation">
-                                <span>Volume boost</span>
+                                <span>{t.settingsVolumeBoost}</span>
                             </div>
                             {VOLUME_BOOST_OPTIONS.map((option) => (
                                 <div key={option.value}
@@ -420,7 +443,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                          setVolumeBoost(option.value);
                                          applyVolumeBoost(parseFloat(option.css));
                                      }}>
-                                    <span>{option.label}</span>
+                                    <span>{getVolumeBoostLabel(option.value, t)}</span>
                                     {option.value === volumeBoost && (
                                         <Check className="media-icon media-menu__indicator"/>
                                     )}
@@ -430,7 +453,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                         <div className="media-menu__separator"/>
                         <div className="media-menu__group">
                             <div className="media-menu__item media-menu__item--subheader" role="presentation">
-                                <span>Normalization</span>
+                                <span>{t.settingsNormalization}</span>
                             </div>
                             {NORMALIZATION_OPTIONS.map((option) => (
                                 <div key={option.value}
@@ -448,7 +471,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                          setNormalization(option.value);
                                          applyNormalization(option.value);
                                      }}>
-                                    <span>{option.label}</span>
+                                    <span>{getNormalizationLabel(option.value, t)}</span>
                                     {option.value === normalization && (
                                         <Check className="media-icon media-menu__indicator"/>
                                     )}
@@ -468,11 +491,11 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                              }}>
                             <span className="media-settings__label">
                                 <ChevronLeft className="media-icon"/>
-                                <span>Speed</span>
+                                <span>{t.settingsSpeed}</span>
                             </span>
                         </div>
                         <Menu.RadioGroup className="media-menu__group" value={speedValue} onValueChange={onSpeedChange}
-                                         label="Playback rate">
+                                         label={t.settingsPlaybackRate}>
                             {speedOptions.map((option) => (
                                 <Menu.RadioItem key={option.value} className="media-menu__item" value={option.value}
                                                 disabled={option.disabled}>
@@ -485,9 +508,54 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                         </Menu.RadioGroup>
                     </div>
                 )}
+                {view === 'fragments' && (
+                    <div className="media-menu__submenu">
+                        <div className="media-menu__item media-menu__item--back" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('root')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('root');
+                             }}>
+                            <span className="media-settings__label">
+                                <ChevronLeft className="media-icon"/>
+                                <span>{t.settingsFragments}</span>
+                            </span>
+                        </div>
+                        <div className="media-menu__group">
+                            {(['opening', 'ending', 'preview', 'compilation'] as FragmentType[]).map((type) => {
+                                const key = `autoSkip${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof FragmentSettings;
+                                const checked = fragmentSettings[key] as boolean;
+                                return (
+                                    <div key={type}
+                                         className="media-menu__item media-settings__toggle"
+                                         role="switch"
+                                         aria-checked={checked}
+                                         tabIndex={0}
+                                         onClick={() => {
+                                             updateSettings({...fragmentSettings, [key]: !fragmentSettings[key]});
+                                         }}
+                                         onKeyDown={(event) => {
+                                             if (!isMenuActionKey(event.key)) return;
+                                             event.preventDefault();
+                                             updateSettings({...fragmentSettings, [key]: !fragmentSettings[key]});
+                                         }}>
+                                        <span className="media-settings__label">
+                                            <span className="media-fragment-dot" style={{backgroundColor: FRAGMENT_COLORS[type]}}/>
+                                            <span>{getFragmentLabel(type, locale)}</span>
+                                        </span>
+                                        <span className="media-settings__toggle-track" data-checked={checked || undefined}>
+                                            <span className="media-settings__toggle-thumb"/>
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
             </Menu.Content>
             {view === 'subtitles-settings' && typeof document !== 'undefined' && createPortal(
-                <div className="media-subtitle-preview">Sample subtitle text</div>,
+                <div className="media-subtitle-preview">{t.settingsSampleSubtitle}</div>,
                 document.querySelector('.media-default-skin') ?? document.body
             )}
         </Menu.Root>

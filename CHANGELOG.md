@@ -8,14 +8,25 @@
 - Season, episode, and voiceover selectors in the top-right corner
 - Content navigation callbacks (`onSeasonChange`, `onEpisodeChange`, `onVoiceoverChange`)
 - `savedState` and `onSaveState` props for external state control
+- `locale` prop for `VideoPlayer` with Russian and English translations
+- Fragment segments (Opening, Ending, Preview, Recap) — colored markers on the timeline
+- Skip fragment button — appears when playback enters a fragment, seeks past it
+- Auto-skip settings per fragment type in the settings menu
+- Fragment settings persisted in localStorage
+- `fragmentSettings` prop for external configuration of auto-skip defaults
 
 ### Changed
 - Refactored video source management — unified HLS/regular video handling
+- `currentSeason` is now optional — derived from `currentEpisode` (`s1e1` → `s1`) when not provided
+- Settings menu, subtitle settings, error dialog, and resume prompt now use localized strings
+- Subtitle settings refactored with centralized option views and localized labels
+- Removed debug logging from VolumeProcessor
 
 ### Fixed
 - Environment variable name in npm publish workflow
+- Fragment settings no longer trigger full player re-render (moved to context-based state)
 
-## [0.1.1] — 2026-05-2
+## [0.1.1] — 2026-05-27
 
 ### Added
 - Audio settings menu with volume boost (50–300%) and normalization (off/light/medium/strong)
