@@ -6,6 +6,7 @@ import logoSrc from './assets/evade-player-logo.png';
 const VIDEO_SRC = import.meta.env.VITE_VIDEO_SRC ?? '';
 const POSTER_SRC = import.meta.env.VITE_POSTER_SRC ?? '';
 const THUMBNAIL_STORYBOARD_SRC = import.meta.env.VITE_THUMBNAIL_STORYBOARD_SRC ?? '';
+const BASE_URL = import.meta.env.BASE_URL;
 
 const voiceoverOptions = [
     {label: 'English', value: 'en'},
@@ -132,7 +133,7 @@ export const App: FC = () => {
     return (
         <>
             <header className="page-header">
-                <a href="/" className="page-header__brand">
+                <a href={BASE_URL} className="page-header__brand">
                     <span className="page-header__logo"><img src={logoSrc} alt="evade-player" style={{width: 22, height: 22}}/></span>
                     evade-player
                 </a>

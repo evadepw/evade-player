@@ -40,6 +40,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
+    "build:pages": "vite build --config vite.config.pages.ts",
     "preview": "vite preview",
     "build:standalone": "vite build --config vite.config.standalone.ts",
     "build:standalone:thin": "vite build --config vite.config.standalone-thin.ts",
