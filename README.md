@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./src/assets/evade-player-logo.png" alt="EvadePlayer" width="120" align="right">
+  <img align="center" src="./src/assets/evade-player-logo.png" alt="EvadePlayer" width="120" align="right">
 </div>
 
 <br clear="right">
@@ -38,7 +38,7 @@
 <br>
 
 <p align="center">
-  <img width="1000" height="562" alt="EvadePlayer preview" src="https://github.com/user-attachments/assets/8b482fba-ffaa-4229-a311-a211a850bf4b" />
+  <img width="2000" height="1124" alt="EvadePlayer preview" src="https://github.com/user-attachments/assets/14814090-ad2b-404b-be78-e145fbd3ec32" />
 </p>
 
 <br>
