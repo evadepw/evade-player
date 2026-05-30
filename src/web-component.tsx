@@ -19,6 +19,8 @@ const OBSERVED_ATTRIBUTES = [
     'current-episode',
     'current-voiceover',
     'locale',
+    'fragments',
+    'fragment-settings',
 ] as const;
 
 export class EvadePlayerElement extends HTMLElement {
@@ -118,7 +120,7 @@ export class EvadePlayerElement extends HTMLElement {
         this.#setAttr('locale', value);
     }
 
-    // --- Complex props (via JS properties only) ---
+    // --- Complex props (via JS properties or JSON attributes) ---
 
     get qualities(): QualityOption[] | undefined {
         return this.#qualities;
@@ -150,6 +152,22 @@ export class EvadePlayerElement extends HTMLElement {
     set fragmentSettings(value: Partial<FragmentSettings> | undefined) {
         this.#fragmentSettings = value;
         this.#render();
+    }
+
+    // --- JSON attribute helpers ---
+
+    #parseFragments(): Fragment[] | undefined {
+        if (this.#fragments) return this.#fragments;
+        const raw = this.getAttribute('fragments');
+        if (!raw) return undefined;
+        try { return JSON.parse(raw) as Fragment[]; } catch { return undefined; }
+    }
+
+    #parseFragmentSettings(): Partial<FragmentSettings> | undefined {
+        if (this.#fragmentSettings) return this.#fragmentSettings;
+        const raw = this.getAttribute('fragment-settings');
+        if (!raw) return undefined;
+        try { return JSON.parse(raw) as Partial<FragmentSettings>; } catch { return undefined; }
     }
 
     get savedState(): PlaybackState | null | undefined {
@@ -188,6 +206,9 @@ export class EvadePlayerElement extends HTMLElement {
             this.dispatchEvent(new CustomEvent(type, {detail}));
         };
 
+        const fragments = this.#parseFragments();
+        const fragmentSettings = this.#parseFragmentSettings();
+
         const props: VideoPlayerProps = {
             src: a('src') || '',
             ...(a('poster') && {poster: a('poster')}),
@@ -210,10 +231,8 @@ export class EvadePlayerElement extends HTMLElement {
             ...(this.#className && {className: this.#className}),
             ...(this.#qualities && {qualities: this.#qualities}),
             ...(this.#seasons && {seasons: this.#seasons}),
-            ...(this.#fragments && {fragments: this.#fragments}),
-            ...(this.#fragmentSettings && {
-                fragmentSettings: this.#fragmentSettings,
-            }),
+            ...(fragments && {fragments}),
+            ...(fragmentSettings && {fragmentSettings}),
             ...(this.#savedState !== undefined && {savedState: this.#savedState}),
             onSeasonChange: (value: string) =>
                 emit('seasonchange', {value}),

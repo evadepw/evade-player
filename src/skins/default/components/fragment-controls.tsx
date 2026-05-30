@@ -136,6 +136,9 @@ export function SkipFragmentButton({
     const fragmentIndex = fragments.indexOf(currentActive);
     if (skippedFragments.has(fragmentIndex)) return null;
 
+    // Silent auto-skip: hide the button entirely, the seek effect handles it
+    if (getAutoSkipValue(currentActive.type, fragmentSettings)) return null;
+
     const label = currentActive.label ?? getFragmentLabel(currentActive.type, locale);
 
     const handleSkip = () => {
