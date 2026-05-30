@@ -142,7 +142,7 @@ export const App: FC = () => {
                         v{version}
                     </span>
                     <a
-                        href="https://github.com/Alukkart/evade-player"
+                        href="https://github.com/evadepw/evade-player"
                         className="page-header__star"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -153,7 +153,7 @@ export const App: FC = () => {
                         Star on GitHub
                     </a>
                     <a
-                        href="https://github.com/Alukkart/evade-player"
+                        href="https://github.com/evadepw/evade-player"
                         className="page-header__link"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -180,7 +180,7 @@ export const App: FC = () => {
                     </p>
                     <div className="hero__actions">
                         <a
-                            href="https://github.com/Alukkart/evade-player/blob/main/README.md"
+                            href="https://github.com/evadepw/evade-player/blob/main/README.md"
                             className="hero__btn hero__btn--primary"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -188,7 +188,7 @@ export const App: FC = () => {
                             <ExternalIcon/> Read the docs
                         </a>
                         <a
-                            href="https://github.com/Alukkart/evade-player"
+                            href="https://github.com/evadepw/evade-player"
                             className="hero__btn hero__btn--secondary"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -275,7 +275,7 @@ export const App: FC = () => {
                 <span>evade-player &mdash; MIT License</span>
                 <div className="page-footer__links">
                     <a
-                        href="https://github.com/Alukkart/evade-player"
+                        href="https://github.com/evadepw/evade-player"
                         className="page-footer__link"
                         target="_blank"
                         rel="noopener noreferrer"

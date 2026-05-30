@@ -8,11 +8,11 @@
   "author": "Alukkart",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Alukkart/evade-player.git"
+    "url": "git+https://github.com/evadepw/evade-player.git"
   },
-  "homepage": "https://github.com/Alukkart/evade-player#readme",
+  "homepage": "https://github.com/evadepw/evade-player#readme",
   "bugs": {
-    "url": "https://github.com/Alukkart/evade-player/issues"
+    "url": "https://github.com/evadepw/evade-player/issues"
   },
   "keywords": [
     "video",

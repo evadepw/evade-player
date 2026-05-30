@@ -60,6 +60,7 @@ export function PlaybackStateManager({
     const onSaveStateRef = useRef(onSaveState);
 
     const restoredRef = useRef(false);
+    const resumeDecidedRef = useRef(false);
 
     const [resumeState, setResumeState] = useState<PlaybackState | null>(() => {
         if (savedStateProp !== undefined) return savedStateProp;
@@ -121,9 +122,10 @@ export function PlaybackStateManager({
     // Load saved state on mount or when src/savedStateProp changes
     useEffect(() => {
         if (!src) return;
+        resumeDecidedRef.current = false;
         const state = savedStateProp !== undefined ? savedStateProp : loadPlaybackState(src);
         startTransition(() => {
-            if (state && state.time >= 1 && state.time < (duration || Infinity)) {
+            if (state && state.time >= 1) {
                 setResumeState(state);
                 setShowResume(true);
             } else {
@@ -131,7 +133,7 @@ export function PlaybackStateManager({
                 setShowResume(false);
             }
         });
-    }, [src, savedStateProp, duration]);
+    }, [src, savedStateProp]);
 
     // Restore volume/muted/playbackRate after media is ready
     useEffect(() => {
@@ -228,6 +230,7 @@ export function PlaybackStateManager({
     }, [currentSeason, currentEpisode, currentVoiceover]);
 
     const handleResume = useCallback(() => {
+        resumeDecidedRef.current = true;
         setShowResume(false);
         if (!resumeState) return;
 
@@ -259,6 +262,7 @@ export function PlaybackStateManager({
     }, [resumeState, store, seasons, currentSeason, currentEpisode, currentVoiceover, onSeasonChange, onEpisodeChange, onVoiceoverChange]);
 
     const handleDismiss = useCallback(() => {
+        resumeDecidedRef.current = true;
         setShowResume(false);
     }, []);
 

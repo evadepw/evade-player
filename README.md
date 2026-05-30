@@ -603,7 +603,7 @@ VITE_PORT=4173 docker compose up --build
 
 | Project | Description |
 |---|---|
-| [evade-player](https://github.com/Alukkart/evade-player) | Frontend video player by Alukkart |
+| [evade-player](https://github.com/evadepw/evade-player) | Frontend video player by Alukkart |
 | [evadeplayer-platform](https://github.com/leo-need-more-coffee/evadeplayer-platform) | Go backend by leo-need-more-coffee — upload, transcode to HLS, signed URLs |
 
 
