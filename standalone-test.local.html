@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvadePlayer — standalone test (local dist)</title>
+    <link rel="stylesheet" href="dist/evade-player.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            background: #0f0f0f;
+            color: #e5e5e5;
+            font-family: system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        h1 { font-size: 1rem; font-weight: 600; margin: 0 0 16px; color: #fff; }
+
+        evade-player {
+            display: block;
+            width: 100%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9;
+            margin: 0 auto 24px;
+        }
+
+        .controls {
+            max-width: 960px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+
+        .card h2 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #888;
+            margin: 0 0 10px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        button {
+            padding: 5px 12px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background: #222;
+            color: #ccc;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        button:hover { background: #2e2e2e; }
+        button.active { background: #1d4ed8; border-color: #2563eb; color: #fff; }
+
+        #log {
+            max-width: 960px;
+            margin: 16px auto 0;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: #6ee7b7;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+        #log p { margin: 2px 0; }
+
+        .src-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .src-row input {
+            flex: 1;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background: #111;
+            color: #ccc;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .src-row input:focus { border-color: #555; }
+    </style>
+</head>
+<body>
+
+<h1>EvadePlayer — standalone test</h1>
+
+<evade-player id="player" locale="ru"></evade-player>
+
+<div class="controls">
+
+    <div class="card">
+        <h2>Источник</h2>
+        <div class="row">
+            <button onclick="setSrc('hls-big')">Big Buck Bunny (HLS)</button>
+            <button onclick="setSrc('hls-mux')">Mux test (HLS)</button>
+            <button onclick="setSrc('mp4')">MP4</button>
+        </div>
+        <div class="src-row">
+            <input id="custom-src" type="url" placeholder="https://example.com/video.m3u8">
+            <button onclick="applyCustomSrc()">Применить</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Качество</h2>
+        <div class="row">
+            <button onclick="setQualities(true)">Варианты качества</button>
+            <button onclick="setQualities(false)">Без вариантов</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Сезоны / эпизоды</h2>
+        <div class="row">
+            <button onclick="setSeasons(true)">2 сезона</button>
+            <button onclick="setSeasons(false)">Без сезонов</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Текущий эпизод</h2>
+        <div class="row" id="episode-btns"></div>
+    </div>
+
+    <div class="card">
+        <h2>Озвучка</h2>
+        <div class="row" id="voiceover-btns"></div>
+    </div>
+
+    <div class="card">
+        <h2>Фрагменты</h2>
+        <div class="row">
+            <button onclick="setFragments(true)">Добавить фрагменты</button>
+            <button onclick="setFragments(false)">Без фрагментов</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Постер</h2>
+        <div class="row">
+            <button onclick="setPoster(true)">С постером</button>
+            <button onclick="setPoster(false)">Без постера</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Сохранённая позиция</h2>
+        <div class="row">
+            <button onclick="setSavedState(30)">С 30 сек</button>
+            <button onclick="setSavedState(120)">С 2 мин</button>
+            <button onclick="setSavedState(null)">Сброс</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Язык</h2>
+        <div class="row">
+            <button onclick="setLocale('ru')">RU</button>
+            <button onclick="setLocale('en')">EN</button>
+        </div>
+    </div>
+
+</div>
+
+<div id="log"><p>— события появятся здесь —</p></div>
+
+<script src="dist/evade-player.js"></script>
+<script>
+const player = document.getElementById('player');
+const logEl  = document.getElementById('log');
+
+// ── Data ────────────────────────────────────────────────────────────────────
+
+const SOURCES = {
+    'hls-big': 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+    'hls-mux': 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4S.m3u8',
+    'mp4':     'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+};
+
+const QUALITIES = [
+    { label: '1080p', src: 'https://test-streams.mux.dev/x36xhzz/url_6/url_462/193039199_mp4_h264_aac_hd_7.m3u8' },
+    { label: '720p',  src: 'https://test-streams.mux.dev/x36xhzz/url_2/url_462/193039199_mp4_h264_aac_ld_7.m3u8' },
+    { label: '480p',  src: 'https://test-streams.mux.dev/x36xhzz/url_6/193039199_mp4_h264_aac_hd_7.m3u8' },
+];
+
+const SEASONS = [
+    {
+        label: 'Сезон 1', value: 's1',
+        episodes: [
+            { label: 'Эпизод 1', value: 's1e1', voiceovers: [
+                { label: 'Дубляж',     value: 'dub' },
+                { label: 'Субтитры',  value: 'sub' },
+                { label: 'Оригинал',  value: 'orig' },
+            ]},
+            { label: 'Эпизод 2', value: 's1e2', voiceovers: [
+                { label: 'Дубляж',    value: 'dub' },
+                { label: 'Субтитры', value: 'sub' },
+            ]},
+            { label: 'Эпизод 3', value: 's1e3', voiceovers: [
+                { label: 'Дубляж',    value: 'dub' },
+            ]},
+        ],
+    },
+    {
+        label: 'Сезон 2', value: 's2',
+        episodes: [
+            { label: 'Эпизод 1', value: 's2e1', voiceovers: [
+                { label: 'Дубляж',    value: 'dub' },
+                { label: 'Субтитры', value: 'sub' },
+            ]},
+            { label: 'Эпизод 2', value: 's2e2', voiceovers: [
+                { label: 'Дубляж',    value: 'dub' },
+            ]},
+        ],
+    },
+];
+
+const FRAGMENTS = [
+    { type: 'opening',     startTime: 5,   endTime: 95  },
+    { type: 'compilation', startTime: 100, endTime: 130 },
+    { type: 'ending',      startTime: 140, endTime: 200 },
+    { type: 'preview',     startTime: 200, endTime: 230 },
+];
+
+const FRAGMENT_SETTINGS = {
+    autoSkipOpening:     false,
+    autoSkipEnding:      false,
+    autoSkipPreview:     false,
+    autoSkipCompilation: false,
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let state = {
+    src:            SOURCES['hls-big'],
+    currentSeason:  undefined,
+    currentEpisode: undefined,
+    currentVoiceover: undefined,
+};
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function log(msg) {
+    const p = document.createElement('p');
+    p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    logEl.prepend(p);
+    if (logEl.children.length > 60) logEl.lastChild.remove();
+}
+
+function renderEpisodeButtons() {
+    const el = document.getElementById('episode-btns');
+    el.innerHTML = '';
+    if (!player.seasons) { el.innerHTML = '<span style="color:#555;font-size:.78rem">нет сезонов</span>'; return; }
+    const season = player.seasons.find(s => s.value === state.currentSeason) || player.seasons[0];
+    (season?.episodes || []).forEach(ep => {
+        const btn = document.createElement('button');
+        btn.textContent = ep.label;
+        if (ep.value === state.currentEpisode) btn.classList.add('active');
+        btn.onclick = () => {
+            state.currentEpisode = ep.value;
+            state.currentVoiceover = ep.voiceovers?.[0]?.value;
+            player.currentEpisode = ep.value;
+            player.currentVoiceover = state.currentVoiceover;
+            renderEpisodeButtons();
+            renderVoiceoverButtons();
+        };
+        el.appendChild(btn);
+    });
+}
+
+function renderVoiceoverButtons() {
+    const el = document.getElementById('voiceover-btns');
+    el.innerHTML = '';
+    if (!player.seasons) { el.innerHTML = '<span style="color:#555;font-size:.78rem">нет сезонов</span>'; return; }
+    const season  = player.seasons?.find(s => s.value === state.currentSeason) || player.seasons?.[0];
+    const episode = season?.episodes?.find(e => e.value === state.currentEpisode) || season?.episodes?.[0];
+    (episode?.voiceovers || []).forEach(vo => {
+        const btn = document.createElement('button');
+        btn.textContent = vo.label;
+        if (vo.value === state.currentVoiceover) btn.classList.add('active');
+        btn.onclick = () => {
+            state.currentVoiceover = vo.value;
+            player.currentVoiceover = vo.value;
+            renderVoiceoverButtons();
+        };
+        el.appendChild(btn);
+    });
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+
+function setSrc(key) {
+    state.src = SOURCES[key];
+    player.src = state.src;
+    document.getElementById('custom-src').value = '';
+    log(`src → ${key}`);
+}
+
+function applyCustomSrc() {
+    const url = document.getElementById('custom-src').value.trim();
+    if (!url) return;
+    state.src = url;
+    player.src = url;
+    log(`src → custom: ${url}`);
+}
+
+function setQualities(on) {
+    player.qualities = on ? QUALITIES : undefined;
+    log(`qualities → ${on ? QUALITIES.map(q => q.label).join(', ') : 'off'}`);
+}
+
+function setSeasons(on) {
+    if (on) {
+        state.currentSeason   = 's1';
+        state.currentEpisode  = 's1e1';
+        state.currentVoiceover = 'dub';
+        player.seasons         = SEASONS;
+        player.currentSeason   = state.currentSeason;
+        player.currentEpisode  = state.currentEpisode;
+        player.currentVoiceover = state.currentVoiceover;
+    } else {
+        state.currentSeason   = undefined;
+        state.currentEpisode  = undefined;
+        state.currentVoiceover = undefined;
+        player.seasons         = undefined;
+        player.currentSeason   = undefined;
+        player.currentEpisode  = undefined;
+        player.currentVoiceover = undefined;
+    }
+    renderEpisodeButtons();
+    renderVoiceoverButtons();
+    log(`seasons → ${on ? '2 seasons' : 'off'}`);
+}
+
+function setFragments(on) {
+    player.fragments        = on ? FRAGMENTS : undefined;
+    player.fragmentSettings = on ? FRAGMENT_SETTINGS : undefined;
+    log(`fragments → ${on ? FRAGMENTS.map(f => f.type).join(', ') : 'off'}`);
+}
+
+function setPoster(on) {
+    player.poster = on ? 'https://peach.blender.org/wp-content/uploads/bbb-splash.png' : undefined;
+    log(`poster → ${on ? 'on' : 'off'}`);
+}
+
+function setSavedState(time) {
+    player.savedState = time !== null ? { time } : null;
+    log(`savedState → ${time !== null ? `${time}s` : 'null'}`);
+}
+
+function setLocale(locale) {
+    player.locale = locale;
+    log(`locale → ${locale}`);
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+
+player.addEventListener('seasonchange', e => {
+    state.currentSeason = e.detail.value;
+    player.currentSeason = state.currentSeason;
+    renderEpisodeButtons();
+    log(`seasonchange → ${e.detail.value}`);
+});
+
+player.addEventListener('episodechange', e => {
+    state.currentEpisode = e.detail.value;
+    player.currentEpisode = state.currentEpisode;
+    renderEpisodeButtons();
+    renderVoiceoverButtons();
+    log(`episodechange → ${e.detail.value}`);
+});
+
+player.addEventListener('voiceoverchange', e => {
+    state.currentVoiceover = e.detail.value;
+    player.currentVoiceover = state.currentVoiceover;
+    renderVoiceoverButtons();
+    log(`voiceoverchange → ${e.detail.value}`);
+});
+
+player.addEventListener('savestate', e => {
+    log(`savestate → time=${e.detail.state.time?.toFixed(1)}s`);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+player.src = state.src;
+</script>
+</body>
+</html>

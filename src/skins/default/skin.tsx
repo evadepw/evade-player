@@ -55,6 +55,7 @@ import {FragmentMarkers, SkipFragmentButton} from './components/fragment-control
 import {FragmentSettingsProvider} from './components/fragment-settings-context';
 import {type Locale} from './locales';
 import {LocaleProvider, useLocaleStrings} from './components/locale-context';
+import {LayoutIndependentHotkeys} from './components/layout-independent-hotkeys';
 
 import './skin.css';
 
@@ -450,6 +451,7 @@ export function VideoPlayer({
                 <div className="media-overlay"/>
 
                 {/* Hotkeys */}
+                <LayoutIndependentHotkeys/>
                 <Hotkey keys="Space" action="togglePaused"/>
                 <Hotkey keys="k" action="togglePaused"/>
                 <Hotkey keys="m" action="toggleMuted"/>

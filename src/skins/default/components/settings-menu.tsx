@@ -1,5 +1,5 @@
 import type {ReactNode} from 'react';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Menu, useMedia, usePlayer} from '@videojs/react';
 import {Captions, Check, ChevronLeft, Gauge, Settings, Timer, Volume2} from 'lucide-react';
@@ -131,6 +131,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     const speedValue = String(playbackRate);
     const [view, setView] = useState<SettingsView>('root');
     const [subSettingsView, setSubSettingsView] = useState<SubtitleSettingsView | null>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
 
     const initialSettings = loadPlayerSettings();
 
@@ -239,6 +240,14 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
         }
     }
 
+    function onOpenChangeComplete(open: boolean): void {
+        if (!open) {
+            // The menu library calls triggerElement.focus() synchronously in onOpenChangeComplete,
+            // so we defer the blur to run after it.
+            setTimeout(() => triggerRef.current?.blur(), 0);
+        }
+    }
+
     function navigateTo(nextView: SettingsView): void {
         setView(nextView);
         setSubSettingsView(null);
@@ -250,8 +259,9 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     };
 
     return (
-        <Menu.Root side="top" align="center" onOpenChange={onOpenChange}>
+        <Menu.Root side="top" align="center" onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
             <Menu.Trigger
+                ref={triggerRef}
                 className="media-button--icon media-button--settings"
                 render={<Button/>}
                 aria-label={t.settingsTrigger}
@@ -406,7 +416,8 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                         subSettingsView={subSettingsView}
                         subtitleAppearance={subtitleAppearance}
                         onSubtitleAppearanceChange={handleSubtitleAppearanceChange}
-                        onBack={() => navigateTo('subtitles')}
+                        onSubSettingsViewChange={setSubSettingsView}
+                        onBack={() => { setSubSettingsView(null); navigateTo('subtitles'); }}
                     />
                 )}
                 {view === 'audio' && (

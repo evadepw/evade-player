@@ -111,6 +111,7 @@ interface SubtitleSettingsContentProps {
     subSettingsView: SubtitleSettingsView | null;
     subtitleAppearance: SubtitleAppearance;
     onSubtitleAppearanceChange: (update: Partial<SubtitleAppearance>) => void;
+    onSubSettingsViewChange: (view: SubtitleSettingsView | null) => void;
     onBack: () => void;
 }
 
@@ -118,6 +119,7 @@ export function SubtitleSettingsContent({
     subSettingsView,
     subtitleAppearance,
     onSubtitleAppearanceChange,
+    onSubSettingsViewChange,
     onBack,
 }: SubtitleSettingsContentProps): ReactNode {
     const t = useLocaleStrings();
@@ -143,7 +145,7 @@ export function SubtitleSettingsContent({
                             key={key}
                             label={getSettingLabel(key, t)}
                             valueLabel={getCurrentOptionLabel(key, options, subtitleAppearance[prop], t)}
-                            onClick={() => onSubtitleAppearanceChange({[prop]: subtitleAppearance[prop]})}
+                            onClick={() => onSubSettingsViewChange(key)}
                         />
                     ))}
                 </div>
@@ -163,7 +165,7 @@ export function SubtitleSettingsContent({
                 view.options,
                 currentValue,
                 (value) => onSubtitleAppearanceChange({[view.prop]: value}),
-                () => onSubtitleAppearanceChange({}),
+                () => onSubSettingsViewChange(null),
                 t,
             )}
         </div>
