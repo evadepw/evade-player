@@ -49,6 +49,7 @@
     justify-content: space-between;
     min-height: 2rem;
     padding: 0 0.75rem;
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
     color: inherit;
     cursor: pointer;
@@ -96,6 +97,28 @@
 
 .media-default-skin .media-popover.media-menu--settings {
     min-width: min(12rem, var(--media-popover-available-width, 12rem));
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.media-default-skin .media-popover.media-menu--settings .media-settings__entry {
+    overflow: hidden;
+}
+
+.media-default-skin .media-popover.media-menu--settings .media-settings__entry .media-settings__label {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.media-default-skin .media-popover.media-menu--settings .media-settings__entry .media-settings__label > :last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.media-default-skin .media-popover.media-menu--settings .media-settings__entry > span:last-child {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .media-default-skin .media-menu__section-label {

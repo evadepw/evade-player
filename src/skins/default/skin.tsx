@@ -141,6 +141,27 @@ function extractSeasonFromEpisode(episode?: string): string | undefined {
     return match?.[1]?.toLowerCase();
 }
 
+function resolveSrcFromHierarchy(
+    seasons: SeasonOption[] | undefined,
+    episodeValue: string | undefined,
+    voiceoverValue: string | undefined
+): string | undefined {
+    if (!seasons || !episodeValue) return undefined;
+
+    for (const s of seasons) {
+        for (const ep of s.episodes ?? []) {
+            if (ep.value === episodeValue) {
+                if (voiceoverValue) {
+                    const vo = ep.voiceovers?.find((v) => v.value === voiceoverValue);
+                    if (vo?.src) return vo.src;
+                }
+                if (ep.src) return ep.src;
+            }
+        }
+    }
+    return undefined;
+}
+
 export interface VideoPlayerProps {
     /** Video source URL (HLS or progressive). */
     src: string;
@@ -243,7 +264,7 @@ interface StoryboardThumbnailItem {
  * ```
  */
 export function VideoPlayer({
-    src,
+    src: explicitSrc,
     qualities,
     className,
     poster,
@@ -264,7 +285,10 @@ export function VideoPlayer({
     ...rest
 }: VideoPlayerProps): ReactNode {
     const resolvedSeason: string | undefined = currentSeason ?? extractSeasonFromEpisode(currentEpisode);
-    const isHls = isHlsSource(src);
+
+    // Resolve effective src from hierarchy, fallback to explicit prop
+    const effectiveSrc = resolveSrcFromHierarchy(seasons, currentEpisode, currentVoiceover) ?? explicitSrc;
+    const isHls = isHlsSource(effectiveSrc);
     const [storyboardItems, setStoryboardItems] = useState<StoryboardThumbnailApiItem[] | null>(null);
 
     useEffect(() => {
@@ -324,7 +348,7 @@ export function VideoPlayer({
                 <VolumeProcessor/>
                 {isHls ? (
                     <HlsVideo
-                        src={src}
+                        src={effectiveSrc}
                         playsInline
                         crossOrigin="anonymous"
                         config={{
@@ -334,7 +358,7 @@ export function VideoPlayer({
                         }}
                     />
                 ) : (
-                    <Video src={src} playsInline crossOrigin="anonymous"/>
+                    <Video src={effectiveSrc} playsInline crossOrigin="anonymous"/>
                 )}
 
                 {poster && (
@@ -364,7 +388,7 @@ export function VideoPlayer({
                 />
 
                 <PlaybackStateManager
-                    src={src}
+                    src={explicitSrc || effectiveSrc}
                     seasons={seasons}
                     currentSeason={resolvedSeason}
                     currentEpisode={currentEpisode}
@@ -415,7 +439,7 @@ export function VideoPlayer({
                         <div className="media-button-group">
                             <VolumePopover/>
 
-                            <SettingsMenu qualities={qualities} masterSource={src}/>
+                            <SettingsMenu qualities={qualities} masterSource={explicitSrc || effectiveSrc}/>
 
                             <Tooltip.Root side="top">
                                 <Tooltip.Trigger

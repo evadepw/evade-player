@@ -195,9 +195,17 @@ const logEl  = document.getElementById('log');
 // ── Data ────────────────────────────────────────────────────────────────────
 
 const SOURCES = {
-    'hls-big': 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-    'hls-mux': 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4S.m3u8',
-    'mp4':     'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    'hls-big':    'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+    'hls-mux':    'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4S.m3u8',
+    'mp4':        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+};
+
+const EP_SRC = {
+    s1e1: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+    s1e2: 'https://test-streams.mux.dev/tos_ismc/main.m3u8',
+    s1e3: 'https://test-streams.mux.dev/pts_shift/master.m3u8',
+    s2e1: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+    s2e2: 'https://test-streams.mux.dev/tos_ismc/main.m3u8',
 };
 
 const QUALITIES = [
@@ -210,30 +218,74 @@ const SEASONS = [
     {
         label: 'Сезон 1', value: 's1',
         episodes: [
-            { label: 'Эпизод 1', value: 's1e1', voiceovers: [
-                { label: 'Дубляж',     value: 'dub' },
-                { label: 'Субтитры',  value: 'sub' },
-                { label: 'Оригинал',  value: 'orig' },
-            ]},
-            { label: 'Эпизод 2', value: 's1e2', voiceovers: [
-                { label: 'Дубляж',    value: 'dub' },
-                { label: 'Субтитры', value: 'sub' },
-            ]},
-            { label: 'Эпизод 3', value: 's1e3', voiceovers: [
-                { label: 'Дубляж',    value: 'dub' },
-            ]},
+            {
+                label: 'Эпизод 1', value: 's1e1', src: EP_SRC.s1e1,
+                voiceovers: [
+                    {
+                        label: 'Дубляж', value: 'dub',
+                        episodes: [
+                            { label: 'Эпизод 1', value: 's1e1' },
+                            { label: 'Эпизод 2', value: 's1e2' },
+                            { label: 'Эпизод 3', value: 's1e3' },
+                        ],
+                    },
+                    {
+                        label: 'Субтитры', value: 'sub',
+                        episodes: [
+                            { label: 'Эпизод 1', value: 's1e1' },
+                            { label: 'Эпизод 2', value: 's1e2' },
+                        ],
+                    },
+                    {
+                        label: 'Оригинал', value: 'orig',
+                        episodes: [
+                            { label: 'Эпизод 1', value: 's1e1' },
+                        ],
+                    },
+                ],
+            },
+            {
+                label: 'Эпизод 2', value: 's1e2', src: EP_SRC.s1e2,
+                voiceovers: [
+                    { label: 'Дубляж', value: 'dub' },
+                    { label: 'Субтитры', value: 'sub' },
+                ],
+            },
+            {
+                label: 'Эпизод 3', value: 's1e3', src: EP_SRC.s1e3,
+                voiceovers: [
+                    { label: 'Дубляж', value: 'dub' },
+                ],
+            },
         ],
     },
     {
         label: 'Сезон 2', value: 's2',
         episodes: [
-            { label: 'Эпизод 1', value: 's2e1', voiceovers: [
-                { label: 'Дубляж',    value: 'dub' },
-                { label: 'Субтитры', value: 'sub' },
-            ]},
-            { label: 'Эпизод 2', value: 's2e2', voiceovers: [
-                { label: 'Дубляж',    value: 'dub' },
-            ]},
+            {
+                label: 'Эпизод 1', value: 's2e1', src: EP_SRC.s2e1,
+                voiceovers: [
+                    {
+                        label: 'Дубляж', value: 'dub',
+                        episodes: [
+                            { label: 'Эпизод 1', value: 's2e1' },
+                            { label: 'Эпизод 2', value: 's2e2' },
+                        ],
+                    },
+                    {
+                        label: 'Субтитры', value: 'sub',
+                        episodes: [
+                            { label: 'Эпизод 1', value: 's2e1' },
+                        ],
+                    },
+                ],
+            },
+            {
+                label: 'Эпизод 2', value: 's2e2', src: EP_SRC.s2e2,
+                voiceovers: [
+                    { label: 'Дубляж', value: 'dub' },
+                ],
+            },
         ],
     },
 ];
@@ -270,20 +322,33 @@ function log(msg) {
     if (logEl.children.length > 60) logEl.lastChild.remove();
 }
 
+function getSeasonEpisodes() {
+    if (!player.seasons) return [];
+    const season = player.seasons.find(s => s.value === state.currentSeason) || player.seasons[0];
+    if (!season) return [];
+    // Voiceover episodes list for filtering
+    for (const ep of season.episodes ?? []) {
+        const vo = ep.voiceovers?.find(v => v.value === state.currentVoiceover);
+        if (vo?.episodes && vo.episodes.length > 0) return vo.episodes;
+    }
+    // Fallback: episodes that have this voiceover
+    const filtered = (season.episodes ?? []).filter(ep =>
+        !state.currentVoiceover || ep.voiceovers?.some(v => v.value === state.currentVoiceover)
+    );
+    return filtered.length > 0 ? filtered : (season.episodes ?? []);
+}
+
 function renderEpisodeButtons() {
     const el = document.getElementById('episode-btns');
     el.innerHTML = '';
     if (!player.seasons) { el.innerHTML = '<span style="color:#555;font-size:.78rem">нет сезонов</span>'; return; }
-    const season = player.seasons.find(s => s.value === state.currentSeason) || player.seasons[0];
-    (season?.episodes || []).forEach(ep => {
+    getSeasonEpisodes().forEach(ep => {
         const btn = document.createElement('button');
         btn.textContent = ep.label;
         if (ep.value === state.currentEpisode) btn.classList.add('active');
         btn.onclick = () => {
             state.currentEpisode = ep.value;
-            state.currentVoiceover = ep.voiceovers?.[0]?.value;
             player.currentEpisode = ep.value;
-            player.currentVoiceover = state.currentVoiceover;
             renderEpisodeButtons();
             renderVoiceoverButtons();
         };
@@ -299,11 +364,19 @@ function renderVoiceoverButtons() {
     const episode = season?.episodes?.find(e => e.value === state.currentEpisode) || season?.episodes?.[0];
     (episode?.voiceovers || []).forEach(vo => {
         const btn = document.createElement('button');
-        btn.textContent = vo.label;
+        const epCount = vo.episodes?.length;
+        btn.textContent = vo.label + (epCount ? ` (${epCount} эп.)` : '');
         if (vo.value === state.currentVoiceover) btn.classList.add('active');
         btn.onclick = () => {
             state.currentVoiceover = vo.value;
             player.currentVoiceover = vo.value;
+            // Auto-select first available episode when switching voiceover
+            const avail = getSeasonEpisodes();
+            if (avail.length > 0 && !avail.some(e => e.value === state.currentEpisode)) {
+                state.currentEpisode = avail[0].value;
+                player.currentEpisode = state.currentEpisode;
+            }
+            renderEpisodeButtons();
             renderVoiceoverButtons();
         };
         el.appendChild(btn);
@@ -352,7 +425,7 @@ function setSeasons(on) {
     }
     renderEpisodeButtons();
     renderVoiceoverButtons();
-    log(`seasons → ${on ? '2 seasons' : 'off'}`);
+    log(`seasons → ${on ? '2 сезона с voiceover-фильтрацией' : 'off'}`);
 }
 
 function setFragments(on) {

@@ -259,7 +259,7 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     };
 
     return (
-        <Menu.Root side="top" align="center" onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
+        <Menu.Root side="top" align="end" onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
             <Menu.Trigger
                 ref={triggerRef}
                 className="media-button--icon media-button--settings"

@@ -36,7 +36,9 @@
     },
     "./skins/default/skin.css": "./dist/evade-player.react.css"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
@@ -46,32 +48,38 @@
     "build:standalone:thin": "vite build --config vite.config.standalone-thin.ts",
     "build:standalone:all": "npm run build:standalone && npm run build:standalone:thin",
     "build:all": "npm run build && npm run build:standalone:all",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
     "prepublishOnly": "npm run build:all"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@videojs/react": "^10.0.0-beta.24",
-    "lucide-react": "^1.16.0"
-  },
-  "devDependencies": {
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
     "@videojs/react": "^10.0.0-beta.24",
     "lucide-react": "^1.16.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@videojs/react": "^10.0.0-beta.24",
     "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "jsdom": "^29.1.1",
+    "lucide-react": "^1.16.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
-    "vite-plugin-dts": "^5.0.1"
+    "vite-plugin-dts": "^5.0.1",
+    "vitest": "^4.1.7"
   }
 }

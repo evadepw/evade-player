@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { useState, type FC } from 'react';
 import { VideoPlayer } from './skins/default/skin.tsx';
 import { version } from '../package.json';
 import logoSrc from './assets/evade-player-logo.png';
@@ -129,7 +129,33 @@ const features = [
     },
 ];
 
-export const App: FC = () => {
+    const seasonsData = Array.from({length: 20}, (_, i) => {
+        const seasonNum = i + 1;
+        const seasonVal = `s${seasonNum}`;
+        return {
+            label: `Season ${seasonNum}`,
+            value: seasonVal,
+            episodes: Array.from({length: 24}, (_, j) => {
+                const episodeNum = j + 1;
+                const episodeVal = `${seasonVal}e${episodeNum}`;
+                return {
+                    label: `Episode ${episodeNum}`,
+                    value: episodeVal,
+                    src: VIDEO_SRC || undefined,
+                    voiceovers: voiceoverOptions.map((vo) => ({
+                        ...vo,
+                        src: VIDEO_SRC || undefined,
+                    })),
+                };
+            }),
+        };
+    });
+
+    export const App: FC = () => {
+    const [season, setSeason] = useState('s1');
+    const [episode, setEpisode] = useState('s1e1');
+    const [voiceover, setVoiceover] = useState('ru');
+
     return (
         <>
             <header className="page-header">
@@ -210,26 +236,18 @@ export const App: FC = () => {
                                     src={VIDEO_SRC}
                                     poster={POSTER_SRC || undefined}
                                     thumbnailStoryboardSrc={THUMBNAIL_STORYBOARD_SRC || undefined}
-                                    seasons={Array.from({length: 20}, (_, i) => ({
-                                        label: `Season ${i + 1}`,
-                                        value: `s${i + 1}`,
-                                        episodes: Array.from({length: 24}, (_, j) => ({
-                                            label: `Episode ${j + 1}`,
-                                            value: `s${i + 1}e${j + 1}`,
-                                            voiceovers: voiceoverOptions,
-                                        })),
-                                    }))}
+                                    seasons={seasonsData}
                                     fragments={[
                                         {type: 'opening', startTime: 0, endTime: 90},
                                         {type: 'ending', startTime: 584, endTime: 634},
                                         {type: 'preview', startTime: 140, endTime: 150},
                                     ]}
-                                    currentSeason="s1"
-                                    currentEpisode="s1e1"
-                                    currentVoiceover="ru"
-                                    onSeasonChange={() => {}}
-                                    onEpisodeChange={() => {}}
-                                    onVoiceoverChange={() => {}}
+                                    currentSeason={season}
+                                    currentEpisode={episode}
+                                    currentVoiceover={voiceover}
+                                    onSeasonChange={setSeason}
+                                    onEpisodeChange={setEpisode}
+                                    onVoiceoverChange={setVoiceover}
                                     onSaveState={() => {}}
                                     locale="en"
                                 />

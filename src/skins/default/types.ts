@@ -26,12 +26,15 @@ export interface SeasonOption {
 export interface EpisodeOption {
     label: string;
     value: string;
+    src?: string;
     voiceovers?: VoiceoverOption[];
 }
 
 export interface VoiceoverOption {
     label: string;
     value: string;
+    src?: string;
+    episodes?: EpisodeOption[];
 }
 
 export interface PlaybackState {

@@ -171,17 +171,10 @@ The storyboard endpoint should return a JSON array:
         {
           label: 'Episode 1',
           value: 's1e1',
+          src: 'https://example.com/s1e1/master.m3u8',
           voiceovers: [
-            { label: 'Russian', value: 'ru' },
-            { label: 'English', value: 'en' },
-          ],
-        },
-        {
-          label: 'Episode 2',
-          value: 's1e2',
-          voiceovers: [
-            { label: 'Russian', value: 'ru' },
-            { label: 'English', value: 'en' },
+            { label: 'Russian', value: 'ru', src: 'https://example.com/ru/s1e1/master.m3u8' },
+            { label: 'English', value: 'en', src: 'https://example.com/en/s1e1/master.m3u8' },
           ],
         },
       ],
@@ -196,7 +189,35 @@ The storyboard endpoint should return a JSON array:
 />
 ```
 
-All props are optional. The episodes dropdown automatically shows episodes from the selected season. Voiceovers are nested within each episode. Selectors appear in the top-right corner.
+#### Source resolution
+
+When `src` is provided in the hierarchy (on an episode or voiceover), the player automatically uses it as the video source — no need to manage the `src` prop manually. The priority is:
+
+1. **Voiceover's `src`** (on the matched `VoiceoverOption` within the current episode)
+2. **Episode's `src`** (on the current `EpisodeOption`)
+3. **Explicit `src` prop** (fallback)
+
+#### Episode filtering by voiceover
+
+When a `VoiceoverOption` contains an `episodes` array, switching to that voiceover filters the episode selector to show only those episodes:
+
+```tsx
+voiceovers: [
+  {
+    label: 'Russian',
+    value: 'ru',
+    src: 'https://example.com/ru/s1e1.m3u8',
+    episodes: [
+      { label: 'Episode 1', value: 's1e1', src: 'https://example.com/ru/s1e1.m3u8' },
+      { label: 'Episode 3', value: 's1e3', src: 'https://example.com/ru/s1e3.m3u8' },
+    ],
+  },
+]
+```
+
+This lets you model dubbing studios that only cover a subset of episodes. If a voiceover has no `episodes` list, the episode selector shows all season episodes that include that voiceover.
+
+All selection props are optional. The selector UI appears in the top-right corner of the player.
 
 ### With fragment markers and skip
 
@@ -319,9 +340,10 @@ Complex props (arrays, objects) are set via JavaScript properties on the element
         {
           label: 'Episode 1',
           value: 's1e1',
+          src: 'https://example.com/s1e1.m3u8',
           voiceovers: [
-            { label: 'Russian', value: 'ru' },
-            { label: 'English', value: 'en' },
+            { label: 'Russian', value: 'ru', src: 'https://example.com/ru/s1e1.m3u8' },
+            { label: 'English', value: 'en', src: 'https://example.com/en/s1e1.m3u8' },
           ],
         },
       ],
@@ -436,8 +458,8 @@ Outputs to `dist/`:
 | `VideoPlayerProps` | Player component props |
 | `QualityOption` | Quality variant option |
 | `SeasonOption` | Season selection option (with episodes) |
-| `EpisodeOption` | Episode selection option (with voiceovers) |
-| `VoiceoverOption` | Voiceover / dub option |
+| `EpisodeOption` | Episode selection option (with optional `src` and voiceovers) |
+| `VoiceoverOption` | Voiceover / dub option (with optional `src` and `episodes`) |
 | `SubtitleOption` | Subtitle track option |
 | `AudioOption` | Audio track option |
 | `SubtitleAppearance` | Subtitle style settings |

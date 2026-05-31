@@ -3,7 +3,7 @@
 import {useMemo, type ReactNode} from 'react';
 import {Menu, Controls, Tooltip} from '@videojs/react';
 import {Check, ChevronDown} from 'lucide-react';
-import type {SeasonOption} from '../types';
+import type {EpisodeOption, SeasonOption, VoiceoverOption} from '../types';
 import {Button} from './button';
 import {useLocaleStrings} from './locale-context';
 
@@ -55,6 +55,38 @@ function Selector({
     );
 }
 
+function findVoiceoverInEpisode(
+    episode: EpisodeOption,
+    voiceoverValue: string
+): VoiceoverOption | undefined {
+    return episode.voiceovers?.find((v) => v.value === voiceoverValue);
+}
+
+function getVoiceoverEpisodes(
+    seasons: SeasonOption[] | undefined,
+    currentSeason: string | undefined,
+    currentVoiceover: string | undefined
+): EpisodeOption[] | undefined {
+    if (!seasons || !currentSeason || !currentVoiceover) return undefined;
+
+    const season = seasons.find((s) => s.value === currentSeason);
+    if (!season) return undefined;
+
+    // First, check if any episode's voiceover has its own episode list
+    for (const ep of season.episodes ?? []) {
+        const vo = findVoiceoverInEpisode(ep, currentVoiceover);
+        if (vo?.episodes && vo.episodes.length > 0) {
+            return vo.episodes;
+        }
+    }
+
+    // Fallback: return all season episodes that have this voiceover
+    const filtered = (season.episodes ?? []).filter((ep) =>
+        ep.voiceovers?.some((v) => v.value === currentVoiceover)
+    );
+    return filtered.length > 0 ? filtered : undefined;
+}
+
 export function ContentSelector({
     seasons,
     currentSeason,
@@ -70,14 +102,31 @@ export function ContentSelector({
         [seasons, currentSeason]
     );
 
-    const episodes = currentSeasonData?.episodes;
+    const seasonEpisodes = currentSeasonData?.episodes;
+
+    const voiceoverEpisodes = useMemo(
+        () => getVoiceoverEpisodes(seasons, currentSeason, currentVoiceover),
+        [seasons, currentSeason, currentVoiceover]
+    );
+
+    // Use voiceover-filtered episodes if available, otherwise all season episodes
+    const episodes = voiceoverEpisodes ?? seasonEpisodes;
 
     const currentEpisodeData = useMemo(
         () => episodes?.find((e) => e.value === currentEpisode),
         [episodes, currentEpisode]
     );
 
-    const voiceovers = currentEpisodeData?.voiceovers;
+    // Voiceovers: from the current episode, or from the voiceover-filtered list
+    const voiceovers = useMemo(() => {
+        if (voiceoverEpisodes && currentSeasonData) {
+            for (const ep of currentSeasonData.episodes ?? []) {
+                const vos = ep.voiceovers;
+                if (vos && vos.length > 0) return vos;
+            }
+        }
+        return currentEpisodeData?.voiceovers;
+    }, [voiceoverEpisodes, currentEpisodeData, currentSeasonData]);
 
     if (!seasons) return null;
 
