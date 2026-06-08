@@ -19,6 +19,8 @@ export const localeEn: LocaleStrings = {
     settingsTextStyle: 'Text style',
     settingsVolumeBoost: 'Volume boost',
     settingsNormalization: 'Normalization',
+    settingsFullscreenScale: 'Fullscreen scale',
+    settingsSleepTimer: 'Sleep timer',
     settingsSampleSubtitle: 'Sample subtitle',
 
     errorTitle: 'Something went wrong',
@@ -26,6 +28,11 @@ export const localeEn: LocaleStrings = {
     resumeContinueFrom: 'Continue from {time}?',
     resumeResume: 'Resume',
     resumeDismiss: 'Dismiss',
+
+    nextEpisodeUpNext: 'Next episode',
+    nextEpisodePlay: 'Play',
+    nextEpisodeCancel: 'Cancel next episode',
+    nextEpisodeAutoplayIn: 'Autoplay in {seconds}s',
 
     selectorSeason: 'Season',
     selectorEpisode: 'Episode',
@@ -99,4 +106,11 @@ export const localeEn: LocaleStrings = {
     normalizationLight: 'Light',
     normalizationMedium: 'Medium',
     normalizationStrong: 'Strong',
+
+    fullscreenScaleContain: 'None (default)',
+    fullscreenScaleFill: 'Stretch',
+    fullscreenScaleCover: 'Crop',
+
+    sleepTimerOff: 'Off',
+    sleepTimerMinutes: '{minutes} min',
 };

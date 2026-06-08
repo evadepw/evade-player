@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Menu, useMedia, usePlayer} from '@videojs/react';
-import {Captions, Check, ChevronLeft, Gauge, Settings, Timer, Volume2} from 'lucide-react';
+import {Captions, Check, ChevronLeft, Fullscreen, Gauge, Moon, Settings, Timer, Volume2} from 'lucide-react';
 import {Button} from './button';
 import {SubtitleSettingsContent} from './subtitle-settings';
 import {
@@ -11,7 +11,11 @@ import {
     DEFAULT_SUBTITLE_APPEARANCE,
     DEFAULT_VOLUME_BOOST,
     DEFAULT_NORMALIZATION,
+    DEFAULT_FULLSCREEN_SCALE,
+    FULLSCREEN_SCALE_OPTIONS,
     NORMALIZATION_OPTIONS,
+    SLEEP_TIMER_OFF_VALUE,
+    SLEEP_TIMER_OPTIONS,
     SUBTITLE_BG_OPTIONS,
     SUBTITLE_COLOR_OPTIONS,
     SUBTITLE_EDGE_STYLE_OPTIONS,
@@ -26,11 +30,12 @@ import {
     type SettingsView,
     type SubtitleAppearance,
     type SubtitleSettingsView,
+    type FullscreenScale,
 } from '../types';
 import {applyVolumeBoost, applyNormalization} from './audio-chain';
 import {loadPlayerSettings, savePlayerSettings} from '../utils/settings-persistence';
 import {useFragmentSettings} from './fragment-settings-context';
-import {getFragmentLabel, getVolumeBoostLabel, getNormalizationLabel} from '../locales';
+import {getFragmentLabel, getVolumeBoostLabel, getNormalizationLabel, getFullscreenScaleLabel, getSleepTimerLabel} from '../locales';
 import {useLocale, useLocaleStrings} from './locale-context';
 import {
     buildQualityMenuOptions,
@@ -45,6 +50,13 @@ import {
 
 function isMenuActionKey(key: string): boolean {
     return key === 'Enter' || key === ' ';
+}
+
+function formatSleepTimerRemaining(ms: number): string {
+    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOption[]; masterSource: string }): ReactNode {
@@ -144,6 +156,12 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     const [normalization, setNormalization] = useState<string>(
         initialSettings?.normalization ?? DEFAULT_NORMALIZATION
     );
+    const [fullscreenScale, setFullscreenScale] = useState<FullscreenScale>(
+        initialSettings?.fullscreenScale ?? DEFAULT_FULLSCREEN_SCALE
+    );
+    const [sleepTimerValue, setSleepTimerValue] = useState<string>(SLEEP_TIMER_OFF_VALUE);
+    const [sleepTimerEndsAt, setSleepTimerEndsAt] = useState<number | null>(null);
+    const [sleepTimerRemainingMs, setSleepTimerRemainingMs] = useState(0);
 
     // Restore volume boost and normalization on mount
     useEffect(() => {
@@ -158,8 +176,40 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
 
     // Persist settings on change
     useEffect(() => {
-        savePlayerSettings({subtitleAppearance, volumeBoost, normalization});
-    }, [subtitleAppearance, volumeBoost, normalization]);
+        savePlayerSettings({subtitleAppearance, volumeBoost, normalization, fullscreenScale});
+    }, [subtitleAppearance, volumeBoost, normalization, fullscreenScale]);
+
+    useEffect(() => {
+        const container = document.querySelector('.media-default-skin') as HTMLElement | null;
+        if (!container) return;
+
+        const option = FULLSCREEN_SCALE_OPTIONS.find((o) => o.value === fullscreenScale);
+        container.style.setProperty('--media-fullscreen-object-fit', option?.css ?? 'contain');
+    }, [fullscreenScale]);
+
+    useEffect(() => {
+        if (!sleepTimerEndsAt) return;
+
+        const updateRemaining = () => {
+            setSleepTimerRemainingMs(Math.max(0, sleepTimerEndsAt - Date.now()));
+        };
+
+        updateRemaining();
+
+        const timeoutId = window.setTimeout(() => {
+            media?.pause();
+            setSleepTimerValue(SLEEP_TIMER_OFF_VALUE);
+            setSleepTimerEndsAt(null);
+            setSleepTimerRemainingMs(0);
+        }, Math.max(0, sleepTimerEndsAt - Date.now()));
+
+        const intervalId = window.setInterval(updateRemaining, 1000);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+            window.clearInterval(intervalId);
+        };
+    }, [media, sleepTimerEndsAt]);
 
     useEffect(() => {
         const container = document.querySelector('.media-default-skin') as HTMLElement | null;
@@ -183,8 +233,6 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
     const t = useLocaleStrings();
     const {locale} = useLocale();
     const {settings: fragmentSettings, updateSettings} = useFragmentSettings();
-
-    if (qualityOptions.length < 2 && speedOptions.length < 2 && subtitleOptions.length < 2) return null;
 
     const qualityValue = resolveActiveQualityValue(qualityOptions, source, masterSource);
     const subtitleValue = getActiveSubtitleValue(media);
@@ -231,6 +279,23 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
         const nextRate = Number(nextValue);
         if (!Number.isFinite(nextRate) || nextRate <= 0) return;
         store.setPlaybackRate(nextRate);
+    }
+
+    function onSleepTimerChange(nextValue: string): void {
+        const option = SLEEP_TIMER_OPTIONS.find((item) => item.value === nextValue);
+        if (!option) return;
+
+        setSleepTimerValue(option.value);
+
+        if (option.minutes === null) {
+            setSleepTimerEndsAt(null);
+            setSleepTimerRemainingMs(0);
+            return;
+        }
+
+        const nextEndsAt = Date.now() + option.minutes * 60 * 1000;
+        setSleepTimerEndsAt(nextEndsAt);
+        setSleepTimerRemainingMs(nextEndsAt - Date.now());
     }
 
     function onOpenChange(open: boolean): void {
@@ -328,6 +393,34 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                 <span>{t.settingsFragments}</span>
                             </span>
                             <span>{Object.values(fragmentSettings).some(Boolean) ? t.commonOn : t.commonOff}</span>
+                        </div>
+                        <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('fullscreen-scale')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('fullscreen-scale');
+                             }}>
+                            <span className="media-settings__label">
+                                <Fullscreen className="media-icon"/>
+                                <span>{t.settingsFullscreenScale}</span>
+                            </span>
+                            <span>{getFullscreenScaleLabel(fullscreenScale, t)}</span>
+                        </div>
+                        <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('sleep-timer')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('sleep-timer');
+                             }}>
+                            <span className="media-settings__label">
+                                <Moon className="media-icon"/>
+                                <span>{t.settingsSleepTimer}</span>
+                            </span>
+                            <span>
+                                {sleepTimerEndsAt ? formatSleepTimerRemaining(sleepTimerRemainingMs) : getSleepTimerLabel(SLEEP_TIMER_OFF_VALUE, t)}
+                            </span>
                         </div>
                         <div className="media-menu__item media-menu__item--submenu media-settings__entry" role="menuitem" tabIndex={0}
                              onClick={() => navigateTo('audio')}
@@ -512,6 +605,62 @@ export function SettingsMenu({qualities, masterSource}: { qualities?: QualityOpt
                                                 disabled={option.disabled}>
                                     <span>{option.label}</span>
                                     <Menu.ItemIndicator checked={option.value === speedValue} forceMount className="media-menu__indicator">
+                                        <Check className="media-icon"/>
+                                    </Menu.ItemIndicator>
+                                </Menu.RadioItem>
+                            ))}
+                        </Menu.RadioGroup>
+                    </div>
+                )}
+                {view === 'fullscreen-scale' && (
+                    <div className="media-menu__submenu">
+                        <div className="media-menu__item media-menu__item--back" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('root')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('root');
+                             }}>
+                            <span className="media-settings__label">
+                                <ChevronLeft className="media-icon"/>
+                                <span>{t.settingsFullscreenScale}</span>
+                            </span>
+                        </div>
+                        <Menu.RadioGroup className="media-menu__group" value={fullscreenScale}
+                                         onValueChange={(nextValue) => setFullscreenScale(nextValue as FullscreenScale)}
+                                         label={t.settingsFullscreenScale}>
+                            {FULLSCREEN_SCALE_OPTIONS.map((option) => (
+                                <Menu.RadioItem key={option.value} className="media-menu__item" value={option.value}>
+                                    <span>{getFullscreenScaleLabel(option.value, t)}</span>
+                                    <Menu.ItemIndicator checked={option.value === fullscreenScale} forceMount className="media-menu__indicator">
+                                        <Check className="media-icon"/>
+                                    </Menu.ItemIndicator>
+                                </Menu.RadioItem>
+                            ))}
+                        </Menu.RadioGroup>
+                    </div>
+                )}
+                {view === 'sleep-timer' && (
+                    <div className="media-menu__submenu">
+                        <div className="media-menu__item media-menu__item--back" role="menuitem" tabIndex={0}
+                             onClick={() => navigateTo('root')}
+                             onKeyDown={(event) => {
+                                 if (!isMenuActionKey(event.key)) return;
+                                 event.preventDefault();
+                                 navigateTo('root');
+                             }}>
+                            <span className="media-settings__label">
+                                <ChevronLeft className="media-icon"/>
+                                <span>{t.settingsSleepTimer}</span>
+                            </span>
+                        </div>
+                        <Menu.RadioGroup className="media-menu__group" value={sleepTimerValue}
+                                         onValueChange={onSleepTimerChange}
+                                         label={t.settingsSleepTimer}>
+                            {SLEEP_TIMER_OPTIONS.map((option) => (
+                                <Menu.RadioItem key={option.value} className="media-menu__item" value={option.value}>
+                                    <span>{getSleepTimerLabel(option.value, t)}</span>
+                                    <Menu.ItemIndicator checked={option.value === sleepTimerValue} forceMount className="media-menu__indicator">
                                         <Check className="media-icon"/>
                                     </Menu.ItemIndicator>
                                 </Menu.RadioItem>

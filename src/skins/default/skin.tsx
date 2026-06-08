@@ -51,6 +51,7 @@ import {isHlsSource, isRenderProp, isString} from './utils';
 import {Player} from './player';
 import {ContentSelector} from './components/content-selector';
 import {PlaybackStateManager} from './components/playback-state-manager';
+import {NextEpisodePrompt} from './components/next-episode-prompt';
 import {FragmentMarkers, SkipFragmentButton} from './components/fragment-controls';
 import {FragmentSettingsProvider} from './components/fragment-settings-context';
 import {type Locale} from './locales';
@@ -395,6 +396,16 @@ export function VideoPlayer({
                     currentVoiceover={currentVoiceover}
                     savedState={savedState}
                     onSaveState={onSaveState}
+                    onSeasonChange={onSeasonChange}
+                    onEpisodeChange={onEpisodeChange}
+                    onVoiceoverChange={onVoiceoverChange}
+                />
+
+                <NextEpisodePrompt
+                    seasons={seasons}
+                    currentSeason={resolvedSeason}
+                    currentEpisode={currentEpisode}
+                    currentVoiceover={currentVoiceover}
                     onSeasonChange={onSeasonChange}
                     onEpisodeChange={onEpisodeChange}
                     onVoiceoverChange={onVoiceoverChange}

@@ -112,7 +112,7 @@
 
 .media-default-skin:fullscreen ::slotted(video),
 .media-default-skin:fullscreen video {
-    object-fit: contain;
+    object-fit: var(--media-fullscreen-object-fit, contain);
 }
 
 /* ==========================================================================

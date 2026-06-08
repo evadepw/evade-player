@@ -21,6 +21,8 @@ export interface LocaleStrings {
     settingsTextStyle: string;
     settingsVolumeBoost: string;
     settingsNormalization: string;
+    settingsFullscreenScale: string;
+    settingsSleepTimer: string;
     settingsSampleSubtitle: string;
 
     errorTitle: string;
@@ -28,6 +30,11 @@ export interface LocaleStrings {
     resumeContinueFrom: string;
     resumeResume: string;
     resumeDismiss: string;
+
+    nextEpisodeUpNext: string;
+    nextEpisodePlay: string;
+    nextEpisodeCancel: string;
+    nextEpisodeAutoplayIn: string;
 
     selectorSeason: string;
     selectorEpisode: string;
@@ -101,6 +108,13 @@ export interface LocaleStrings {
     normalizationLight: string;
     normalizationMedium: string;
     normalizationStrong: string;
+
+    fullscreenScaleContain: string;
+    fullscreenScaleFill: string;
+    fullscreenScaleCover: string;
+
+    sleepTimerOff: string;
+    sleepTimerMinutes: string;
 }
 
 // --- Option label resolvers ---
@@ -175,6 +189,12 @@ const NORMALIZATION_MAP: LabelValueMap = {
     strong: 'normalizationStrong',
 };
 
+const FULLSCREEN_SCALE_MAP: LabelValueMap = {
+    contain: 'fullscreenScaleContain',
+    fill: 'fullscreenScaleFill',
+    cover: 'fullscreenScaleCover',
+};
+
 function resolveOptionLabel(value: string, map: LabelValueMap, t: LocaleStrings, fallback: string): string {
     const key = map[value];
     return key ? t[key] : fallback;
@@ -210,6 +230,15 @@ export function getVolumeBoostLabel(value: string, t: LocaleStrings): string {
 
 export function getNormalizationLabel(value: string, t: LocaleStrings): string {
     return resolveOptionLabel(value, NORMALIZATION_MAP, t, value);
+}
+
+export function getFullscreenScaleLabel(value: string, t: LocaleStrings): string {
+    return resolveOptionLabel(value, FULLSCREEN_SCALE_MAP, t, value);
+}
+
+export function getSleepTimerLabel(value: string, t: LocaleStrings): string {
+    if (value === 'off') return t.sleepTimerOff;
+    return t.sleepTimerMinutes.replace('{minutes}', value);
 }
 
 export const FRAGMENT_LABELS_RU: Record<FragmentType, string> = {

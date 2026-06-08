@@ -19,6 +19,8 @@ export const localeRu: LocaleStrings = {
     settingsTextStyle: 'Стиль текста',
     settingsVolumeBoost: 'Усиление громкости',
     settingsNormalization: 'Нормализация',
+    settingsFullscreenScale: 'Масштаб экрана',
+    settingsSleepTimer: 'Таймер сна',
     settingsSampleSubtitle: 'Тест субтитров',
 
     errorTitle: 'Произошла ошибка',
@@ -26,6 +28,11 @@ export const localeRu: LocaleStrings = {
     resumeContinueFrom: 'Продолжить с {time}?',
     resumeResume: 'Продолжить',
     resumeDismiss: 'Убрать',
+
+    nextEpisodeUpNext: 'Следующая серия',
+    nextEpisodePlay: 'Включить',
+    nextEpisodeCancel: 'Отменить переход',
+    nextEpisodeAutoplayIn: 'Автопереход через {seconds} сек',
 
     selectorSeason: 'Сезон',
     selectorEpisode: 'Серия',
@@ -99,4 +106,11 @@ export const localeRu: LocaleStrings = {
     normalizationLight: 'Лёгкая',
     normalizationMedium: 'Средняя',
     normalizationStrong: 'Сильная',
+
+    fullscreenScaleContain: 'Нет (по умолчанию)',
+    fullscreenScaleFill: 'Растянуть',
+    fullscreenScaleCover: 'Обрезать',
+
+    sleepTimerOff: 'Выкл',
+    sleepTimerMinutes: '{minutes} мин',
 };

@@ -12,6 +12,8 @@ export {
     getPositionLabel,
     getVolumeBoostLabel,
     getNormalizationLabel,
+    getFullscreenScaleLabel,
+    getSleepTimerLabel,
     FRAGMENT_LABELS_RU,
     FRAGMENT_LABELS_EN,
 } from './strings';

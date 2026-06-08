@@ -197,7 +197,7 @@
 .media-default-skin:fullscreen media-poster ::slotted(img),
 .media-default-skin:fullscreen media-poster img,
 .media-default-skin:fullscreen > img {
-    object-fit: contain;
+    object-fit: var(--media-fullscreen-object-fit, contain);
 }
 
 /* ==========================================================================
@@ -354,5 +354,139 @@
 
     & > * {
         flex: 1;
+    }
+}
+
+/* ==========================================================================
+   Next Episode Prompt
+   ========================================================================== */
+
+.media-next-episode-prompt {
+    position: absolute;
+    right: 1rem;
+    bottom: 5.5rem;
+    z-index: 19;
+    max-width: min(22rem, calc(100% - 2rem));
+    color: oklch(1 0 0);
+    text-shadow: 0 1px 0 oklch(0 0 0 / 0.25);
+}
+
+.media-next-episode-prompt__dialog {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "content close"
+        "content action";
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.media-next-episode-prompt__close {
+    grid-area: close;
+    justify-self: end;
+    align-self: start;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    aspect-ratio: 1;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-radius: calc(infinity * 1px);
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+
+    &:focus-visible {
+        outline-color: currentColor;
+        outline-offset: 2px;
+    }
+
+    &:hover {
+        background-color: oklch(from currentColor l c h / 0.1);
+    }
+
+    & .media-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+.media-next-episode-prompt__content {
+    grid-area: content;
+    min-width: 0;
+}
+
+.media-next-episode-prompt__label,
+.media-next-episode-prompt__title,
+.media-next-episode-prompt__countdown {
+    margin: 0;
+}
+
+.media-next-episode-prompt__label,
+.media-next-episode-prompt__countdown {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    opacity: 0.72;
+}
+
+.media-next-episode-prompt__title {
+    margin-top: 0.25rem;
+    overflow: hidden;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.media-next-episode-prompt__countdown {
+    margin-top: 0.25rem;
+}
+
+.media-next-episode-prompt__action {
+    grid-area: action;
+    align-self: end;
+    gap: 0.45rem;
+    padding-inline: 0.75rem;
+
+    & .media-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .media-next-episode-prompt {
+        right: 0.75rem;
+        bottom: 4.75rem;
+        left: 0.75rem;
+        max-width: none;
+    }
+
+    .media-next-episode-prompt__dialog {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "content"
+            "action";
+    }
+
+    .media-next-episode-prompt__close {
+        position: absolute;
+        top: 0.375rem;
+        right: 0.375rem;
+    }
+
+    .media-next-episode-prompt__content {
+        padding-right: 1.5rem;
+    }
+
+    .media-next-episode-prompt__action {
+        justify-self: stretch;
     }
 }

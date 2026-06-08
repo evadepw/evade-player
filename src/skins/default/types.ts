@@ -47,6 +47,7 @@ export interface PlaybackState {
 export const AUTO_QUALITY_VALUE = '__auto__';
 export const SUBTITLES_OFF_VALUE = '__subtitles_off__';
 export const AUDIO_OFF_VALUE = '__audio_off__';
+export const SLEEP_TIMER_OFF_VALUE = 'off';
 
 export interface SubtitleAppearance {
     fontSize: string;
@@ -135,6 +136,37 @@ export const NORMALIZATION_OPTIONS: SubtitleSettingOption[] = [
 
 export const DEFAULT_VOLUME_BOOST = '100';
 export const DEFAULT_NORMALIZATION = 'off';
+export const DEFAULT_FULLSCREEN_SCALE = 'contain';
+
+export type FullscreenScale = 'contain' | 'fill' | 'cover';
+
+export interface FullscreenScaleOption {
+    value: FullscreenScale;
+    label: string;
+    css: string;
+}
+
+export const FULLSCREEN_SCALE_OPTIONS: FullscreenScaleOption[] = [
+    {value: 'contain', label: 'None', css: 'contain'},
+    {value: 'fill', label: 'Stretch', css: 'fill'},
+    {value: 'cover', label: 'Crop', css: 'cover'},
+];
+
+export interface SleepTimerOption {
+    value: string;
+    minutes: number | null;
+}
+
+export const SLEEP_TIMER_OPTIONS: SleepTimerOption[] = [
+    {value: SLEEP_TIMER_OFF_VALUE, minutes: null},
+    {value: '5', minutes: 5},
+    {value: '10', minutes: 10},
+    {value: '15', minutes: 15},
+    {value: '30', minutes: 30},
+    {value: '60', minutes: 60},
+    {value: '90', minutes: 90},
+    {value: '120', minutes: 120},
+];
 
 export interface PlayerSettings {
     volume: number;
@@ -143,6 +175,7 @@ export interface PlayerSettings {
     subtitleAppearance: SubtitleAppearance;
     volumeBoost: string;
     normalization: string;
+    fullscreenScale: FullscreenScale;
     fragmentSettings: FragmentSettings;
 }
 
@@ -185,4 +218,4 @@ export const FRAGMENT_COLORS: Record<FragmentType, string> = {
     compilation: '#f59e0b',
 };
 
-export type SettingsView = 'root' | 'quality' | 'subtitles' | 'subtitles-settings' | 'audio' | 'season' | 'episode' | 'speed' | 'fragments';
+export type SettingsView = 'root' | 'quality' | 'subtitles' | 'subtitles-settings' | 'audio' | 'season' | 'episode' | 'speed' | 'fragments' | 'fullscreen-scale' | 'sleep-timer';
