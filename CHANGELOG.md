@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.1] — 2026-06-08
+
+### Added
+- Next episode prompt — "Up next" overlay with an auto-advance countdown, "Play" button, and dismiss control
+- Fullscreen scale setting — None (contain), Stretch (fill), and Crop (cover) modes for fullscreen playback
+- Sleep timer setting — off or 5–120 minute presets in the settings menu
+- Per-voiceover sources and episode lists — `src` on `EpisodeOption`/`VoiceoverOption` and voiceover-specific episode filtering
+- Web Component `fragments` and `fragment-settings` JSON attributes for timeline fragments and auto-skip
+- Layout-independent hotkeys for keyboard control regardless of the active layout
+- Dark mode support
+- GitHub Pages demo build (`npm run build:pages`)
+- Test suite (Vitest) covering playback state and settings persistence
+
+### Changed
+- Settings menu extended with fullscreen scale and sleep timer submenus
+- Content selector reworked to resolve sources and episodes per voiceover
+
+### Fixed
+- Next episode prompt close button no longer overlaps the title and action button
+- Player overlay rendering fixes
+
 ## [0.2.0] — 2026-05-30
 
 ### Added
@@ -81,6 +102,7 @@
 - GitHub Actions workflow for npm publishing
 - MIT License
 
+[0.2.1]: https://github.com/alukkart/evade-player/releases/tag/0.2.1
 [0.2.0]: https://github.com/alukkart/evade-player/releases/tag/0.2.0
 [0.1.3]: https://github.com/alukkart/evade-player/releases/tag/0.1.3
 [0.1.2]: https://github.com/alukkart/evade-player/releases/tag/0.1.2
